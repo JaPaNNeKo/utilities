@@ -65,6 +65,7 @@ class AppManager(object):
 
 def create_seed():
     path_root = '{0}\Yggdrasil'.format(AppManager.path_root)
+    import pdb;pdb.set_trace()
     os.mkdir(path_root)
     os.mkdir(r'{0}\venvs'.format(path_root))
     os.mkdir(r'{0}\scripts'.format(path_root))
