@@ -2,7 +2,7 @@ import os
 import warnings
 
 ls_tools = 'echo off & set base_path=%~dp0% & set search="*.bat" & dir /b %base_path%%search%'
-
+PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 
 class App(object):
     def __init__(self, name: str, path_project: str, version_py: str, entry_point: str, env: str):
@@ -26,11 +26,6 @@ class AppManager(object):
     @classmethod
     def from_root(cls, root: str):
         return AppManager(apps=cls._get_apps('{0}\core\settings.txt'.format(root)), root=root)
-
-    @classmethod
-    @property
-    def path_root(self):
-        return os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 
     @classmethod
     def _get_apps(cls, path_settings:str):
@@ -62,10 +57,8 @@ class AppManager(object):
             os.system('rmvirtualenv {0}'.format(self.apps[name].env))
         os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
 
-
 def create_seed():
-    path_root = '{0}\Yggdrasil'.format(AppManager.path_root)
-    import pdb;pdb.set_trace()
+    path_root = '{0}\Yggdrasil'.format(PATH_YGGDRASIL)
     os.mkdir(path_root)
     os.mkdir(r'{0}\venvs'.format(path_root))
     os.mkdir(r'{0}\scripts'.format(path_root))
