@@ -3,6 +3,7 @@ import warnings
 
 ls_tools = 'echo off & set base_path=%~dp0% & set search="*.bat" & dir /b %base_path%%search%'
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
+_PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
 class App(object):
     def __init__(self, name: str, path_project: str, version_py: str, entry_point: str, env: str):
@@ -42,7 +43,7 @@ class AppManager(object):
             os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
             os.system(r'workon {1} & pip install -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
         # Generate batch launcher
-        with open(r'{0}\settings\template_launcher.txt'.format(self.root)) as f:
+        with open(r'{0}\template_launcher.txt'.format(_PATH_INTERNAL)) as f:
             batch = f.readlines()
         for i, row in enumerate(batch):
             for str_rep, att_name in self.__class__._replacements:
