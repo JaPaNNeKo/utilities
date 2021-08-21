@@ -25,7 +25,7 @@ class AppManager(object):
 
     @classmethod
     def from_root(cls, root: str):
-        return AppManager(apps=cls._get_apps('{0}\core\settings.txt'.format(root)), root=root)
+        return AppManager(apps=cls._get_apps('{0}\settings\settings.txt'.format(root)), root=root)
 
     @classmethod
     def _get_apps(cls, path_settings:str):
@@ -38,11 +38,11 @@ class AppManager(object):
     def mk_app(self, name: str):
         # Generate virtual environment
         if not os.path.isdir(r'{0}\venvs\{1}'.format(self.root,self.apps[name].env)):
-            os.system(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py,self.root, self.apps[name].env))
+            os.system(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
             os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
             os.system(r'workon {1} & pip install -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
         # Generate batch launcher
-        with open(r'{0}\core\template_launcher.txt'.format(self.root)) as f:
+        with open(r'{0}\settings\template_launcher.txt'.format(self.root)) as f:
             batch = f.readlines()
         for i, row in enumerate(batch):
             for str_rep, att_name in self.__class__._replacements:
@@ -52,7 +52,7 @@ class AppManager(object):
             f.write("".join(batch))
 
     def rm_app(self, name: str):
-        nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env==self.apps[name].env])
+        nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env == self.apps[name].env])
         if nb_venv_uses <= 1:
             os.system('rmvirtualenv {0}'.format(self.apps[name].env))
         os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
