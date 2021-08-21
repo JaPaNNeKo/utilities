@@ -130,7 +130,7 @@ dmypy.json
 
 
 # Additional
-.idea/
+.idea/*
 #.idea/modules.xml
 #.idea/utilities.iml
 #.idea/vcs.xml
