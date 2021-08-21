@@ -71,8 +71,6 @@ def create_seed():
     if r"{0}\scripts".format(path_root) not in os.environ['Path'].split(";"):
         warnings.warn("Please add {0}\scripts to your Path variable for easier access to utilities".format(path_root))
 
-def foobar():
-    print(os.path.join(os.path.dirname(__file__)))
 
 if __name__ == "__main__":
     create_seed()
