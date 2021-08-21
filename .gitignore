@@ -130,9 +130,10 @@ dmypy.json
 
 
 # Additional
-.idea/modules.xml
-.idea/utilities.iml
-.idea/vcs.xml
-.idea/inspectionProfiles/profiles_settings.xml
-.idea/misc.xml
-.idea/workspace.xml
+.idea/
+#.idea/modules.xml
+#.idea/utilities.iml
+#.idea/vcs.xml
+#.idea/inspectionProfiles/profiles_settings.xml
+#.idea/misc.xml
+#.idea/workspace.xml
