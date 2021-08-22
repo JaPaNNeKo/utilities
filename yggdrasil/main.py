@@ -1,7 +1,7 @@
 import os
 import warnings
 
-ls_tools = 'echo off\tset base_path=%~dp0%\tset search="*.bat"\tdir /b %base_path%%search%'
+# ls_tools = 'echo off\tset base_path=%~dp0%\tset search="*.bat"\tdir /b %base_path%%search%'
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 _PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
@@ -52,11 +52,18 @@ class AppManager(object):
         with open(r'{0}\scripts\{1}.bat'.format(self.root,name),'w+') as f:
             f.write("".join(batch))
 
+    def update_app(self, name:str):
+        os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
+                                                                         self.apps[name].path_project))
+        os.system(r'workon {1} & pip install -r "{0}\requirements.txt" & deactivate'.format(
+            self.apps[name].path_project, self.apps[name].env))
+
     def rm_app(self, name: str):
         nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env == self.apps[name].env])
         if nb_venv_uses <= 1:
             os.system('rmvirtualenv {0}'.format(self.apps[name].env))
         os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
+
 
 def create_seed():
     path_root = '{0}\Yggdrasil'.format(PATH_YGGDRASIL)
@@ -64,8 +71,11 @@ def create_seed():
     os.mkdir(r'{0}\venvs'.format(path_root))
     os.mkdir(r'{0}\scripts'.format(path_root))
     os.mkdir(r'{0}\settings'.format(path_root))
+
+    with open(r'{0}\ls_tools.txt'.format(_PATH_INTERNAL)) as f:
+        batch_ls = f.readlines()
     with open(r'{0}\scripts\ls_tools.bat'.format(path_root),'w+') as f:
-        f.write(ls_tools)
+        f.write("".join(batch_ls))
     with open(r'{0}\settings\settings.txt'.format(path_root),'w+') as f:
         f.write('name\tpy_version\tvenv\tdirectory\tentry_point')
     if r"{0}\scripts".format(path_root) not in os.environ['Path'].split(";"):
