@@ -36,7 +36,9 @@ class AppManager(object):
                     range(1, len(ls_settings))]
         return {elt['name']:App(name=elt['name'],path_project=elt['directory'],version_py=elt['py_version'],entry_point=elt['entry_point'],env=elt['venv']) for elt in settings}
 
-    def mk_app(self, name: str):
+    def mk_app(self, name: str, force_regen: bool = False):
+        if force_regen:
+            self.rm_app(name)
         # Generate virtual environment
         if not os.path.isdir(r'{0}\venvs\{1}'.format(self.root,self.apps[name].env)):
             os.system(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
