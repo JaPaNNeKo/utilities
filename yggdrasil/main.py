@@ -1,7 +1,7 @@
 import os
 import warnings
 
-ls_tools = 'echo off & set base_path=%~dp0% & set search="*.bat" & dir /b %base_path%%search%'
+ls_tools = 'echo off\tset base_path=%~dp0%\tset search="*.bat"\tdir /b %base_path%%search%'
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 _PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
