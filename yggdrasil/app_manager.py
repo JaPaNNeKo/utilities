@@ -50,7 +50,7 @@ class AppManager(object):
             else:
                 os.system(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
             os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
-            os.system(r'workon {1} & pip install -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
+            os.system(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
         # Generate batch launcher
         with open(r'{0}\template_launcher.txt'.format(_PATH_INTERNAL)) as f:
             batch = f.readlines()
@@ -64,7 +64,7 @@ class AppManager(object):
     def up_app(self, name: str):
         os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
                                                                          self.apps[name].path_project))
-        os.system(r'workon {1} & pip install -r "{0}\requirements.txt" & deactivate'.format(
+        os.system(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(
             self.apps[name].path_project, self.apps[name].env))
 
     def rm_app(self, name: str):
