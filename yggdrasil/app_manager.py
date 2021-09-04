@@ -1,18 +1,28 @@
 import os
+from collections import namedtuple
+import subprocess
+import logging
+import sys
 
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 _PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
+App = namedtuple("App", ('name', 'path_project', 'version_py', 'entry_point', 'env'))
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
-class App(object):
-    def __init__(self, name: str, path_project: str, version_py: str, entry_point: str, env: str):
-        self.name = name
-        self.env = env
-        self.path_project = path_project
-        self.version_py = version_py
-        self.entry_point = entry_point
+class CmdError(Exception):
+    def __init__(self, error: str):
+        self.message = 'Aborting, error in commands communicated:\n{0}'.format(error)
+        super().__init__(self.message)
 
 
+def run_cmds(cmds:[]):
+    for cmd in cmds:
+        output = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        if output.wait() != 0:
+            raise CmdError(str(output.communicate()[1]))
+
+# TODO DRY logging (make a decorator instead?)
 class AppManager(object):
     _replacements = [
         ('#name_venv#', 'env'),
@@ -20,6 +30,7 @@ class AppManager(object):
     ]
 
     def __init__(self, apps: [], root: str):
+        self.logger = logging.getLogger('APP_MGER')
         self.root = root
         self.apps = apps
         self.functions = {
@@ -41,17 +52,21 @@ class AppManager(object):
         return {elt['name']:App(name=elt['name'],path_project=elt['directory'],version_py=elt['py_version'],entry_point=elt['entry_point'],env=elt['venv']) for elt in settings}
 
     def mk_app(self, name: str, **kwargs):
+        self.logger.info("App creation for {0}: Starting...".format(name))
         force_regen = kwargs.pop('force_regen', False)
         if self.check_app(name) and force_regen:
             self.rm_app(name)
         # Generate virtual environment
-        if not os.path.isdir(r'{0}\venvs\{1}'.format(self.root,self.apps[name].env)):
+        cmds = []
+        if not os.path.isdir(r'{0}\venvs\{1}'.format(self.root, self.apps[name].env)):
             if self.apps[name].version_py == '':
-                os.system(r'py -m venv {0}\venvs\{1}'.format(self.root, self.apps[name].env))
+                cmds.append(r'py -m venv {0}\venvs\{1}'.format(self.root, self.apps[name].env))
             else:
-                os.system(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
-            os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
-            os.system(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
+                cmds.append(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
+            cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
+            cmds.append(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
+        run_cmds(cmds=cmds)
+
         # Generate batch launcher
         with open(r'{0}\template_launcher.txt'.format(_PATH_INTERNAL)) as f:
             batch = f.readlines()
@@ -61,18 +76,25 @@ class AppManager(object):
                 batch[i] = row
         with open(r'{0}\scripts\{1}.bat'.format(self.root,name),'w+') as f:
             f.write("".join(batch))
+        self.logger.info("App creation for {0}: Completed!".format(name))
 
     def up_app(self, name: str):
-        os.system('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
+        self.logger.info("App update for {0}: Starting...".format(name))
+        cmds = []
+        cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
                                                                          self.apps[name].path_project))
-        os.system(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(
+        cmds.append(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(
             self.apps[name].path_project, self.apps[name].env))
+        run_cmds(cmds)
+        self.logger.info("App update for {0}: Completed!".format(name))
 
     def rm_app(self, name: str):
+        self.logger.info("App removal for {0}: Starting...".format(name))
         nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env == self.apps[name].env])
         if nb_venv_uses <= 1:
-            os.system('rmvirtualenv {0}'.format(self.apps[name].env))
+            run_cmds(['rmvirtualenv {0}'.format(self.apps[name].env)])
         os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
+        self.logger.info("App removal for {0}: Completed!".format(name))
 
     def check_app(self, name: str):
         return os.path.exists(r"{0}\scripts\{1}.bat".format(self.root, name))
