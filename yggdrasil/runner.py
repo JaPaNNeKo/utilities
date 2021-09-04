@@ -28,4 +28,4 @@ def run(cmd: str, **kwargs):
     elif type(apps) == str:
         apps = [apps]
     for name_app in apps:
-        mger.functions[cmd](name_app, kwargs)
+        mger.functions[cmd](name_app, **kwargs)

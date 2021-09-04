@@ -40,8 +40,9 @@ class AppManager(object):
                     range(1, len(ls_settings))]
         return {elt['name']:App(name=elt['name'],path_project=elt['directory'],version_py=elt['py_version'],entry_point=elt['entry_point'],env=elt['venv']) for elt in settings}
 
-    def mk_app(self, name: str, force_regen: bool = False):
-        if force_regen:
+    def mk_app(self, name: str, **kwargs):
+        force_regen = kwargs.pop('force_regen', False)
+        if self.check_app(name) and force_regen:
             self.rm_app(name)
         # Generate virtual environment
         if not os.path.isdir(r'{0}\venvs\{1}'.format(self.root,self.apps[name].env)):
@@ -72,3 +73,6 @@ class AppManager(object):
         if nb_venv_uses <= 1:
             os.system('rmvirtualenv {0}'.format(self.apps[name].env))
         os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
+
+    def check_app(self, name: str):
+        return os.path.exists(r"{0}\scripts\{1}.bat".format(self.root, name))
