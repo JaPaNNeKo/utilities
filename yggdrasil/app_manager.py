@@ -63,6 +63,7 @@ class AppManager(object):
     def mk_app(self, name: str, **kwargs):
         logger.info("App creation for {0}: Starting...".format(name))
         force_regen = kwargs.pop('force_regen', False)
+        debug = kwargs.pop('debug', False)
         if self.check_app(name) and force_regen:
             self.rm_app(name)
         # Generate virtual environment
@@ -76,10 +77,18 @@ class AppManager(object):
             cmds.append(
                 r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'
                 .format(self.apps[name].path_project, self.apps[name].env))
-        run_cmds(cmds=cmds)
+        try:
+            run_cmds(cmds=cmds)
+        except CmdError as e:
+            if not debug:
+                logger.error("App {0} could not be created - Rolling back".format(name))
+                self.rm_app(name)
+                return
+            else:
+                raise e
 
         # Generate batch launcher
-        with open(r'{0}\template_launcher.txt'.format(_PATH_INTERNAL)) as f:
+        with open(r'{0}\data\template_launcher.txt'.format(_PATH_INTERNAL)) as f:
             batch = f.readlines()
         for i, row in enumerate(batch):
             for str_rep, att_name in self.__class__._replacements:
@@ -99,14 +108,16 @@ class AppManager(object):
             .format(self.apps[name].path_project, self.apps[name].env))
         run_cmds(cmds)
         logger.info("App update for {0}: Completed!".format(name))
+        logger.info("App creation for {0}: Completed!".format(name))
 
     def rm_app(self, name: str):
-        logger.info("App removal for {0}: Starting...".format(name))
+        logger.info("App deletion for {0}: Starting...".format(name))
         nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env == self.apps[name].env])
-        if nb_venv_uses <= 1:
+        if nb_venv_uses == 1:
             run_cmds(['rmvirtualenv {0}'.format(self.apps[name].env)])
-        os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
-        logger.info("App removal for {0}: Completed!".format(name))
+        if os.path.exists(r"{0}\scripts\{1}.bat".format(self.root,name)):
+            os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
+        logger.info("App creation for {0}: Completed!".format(name))
 
     def check_app(self, name: str):
         return os.path.exists(r"{0}\scripts\{1}.bat".format(self.root, name))

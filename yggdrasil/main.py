@@ -11,7 +11,7 @@ def create_seed():
     os.mkdir(r'{0}\scripts'.format(path_root))
     os.mkdir(r'{0}\settings'.format(path_root))
 
-    with open(r'{0}\ls_tools.txt'.format(app_manager._PATH_INTERNAL)) as f:
+    with open(r'{0}\data\ls_tools.txt'.format(app_manager._PATH_INTERNAL)) as f:
         batch_ls = f.readlines()
     with open(r'{0}\scripts\ls_tools.bat'.format(path_root), 'w+') as f:
         f.write("".join(batch_ls))
@@ -23,8 +23,8 @@ def create_seed():
 
 def run(cmd: str, **kwargs):
     apps = kwargs.pop("apps", None)
-    show_debug = kwargs.pop("show_debug")
-    if show_debug:
+    debug = kwargs.get("debug")
+    if debug:
         logger.setLevel("DEBUG")
     else:
         logger.setLevel("INFO")
@@ -37,13 +37,13 @@ def run(cmd: str, **kwargs):
         mger.functions[cmd](name_app, **kwargs)
 
 
-def create(apps, show_debug=False, force_regen=False):
-    run("make", apps=apps, show_debug=show_debug)
+def create(apps, debug=False, force_regen=False):
+    run("make", apps=apps, debug=debug)
 
 
-def remove(apps, show_debug=False):
-    run("remove", apps=apps, show_debug=show_debug)
+def remove(apps, debug=False):
+    run("remove", apps=apps, debug=debug)
 
 
-def update(apps, show_debug=False):
-    run("update", apps=apps, show_debug=show_debug)
+def update(apps, debug=False):
+    run("update", apps=apps, debug=debug)
