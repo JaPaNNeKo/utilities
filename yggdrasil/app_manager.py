@@ -1,13 +1,11 @@
 import os
 from collections import namedtuple
 import subprocess
-import logging
-import sys
+from yggdrasil.logger import logger
 
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 _PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 App = namedtuple("App", ('name', 'path_project', 'version_py', 'entry_point', 'env'))
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class CmdError(Exception):
@@ -18,9 +16,13 @@ class CmdError(Exception):
 
 def run_cmds(cmds:[]):
     for cmd in cmds:
-        output = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-        if output.wait() != 0:
-            raise CmdError(str(output.communicate()[1]))
+        logger.debug("Launching command {0}".format(cmd))
+        output = subprocess.run(cmd, shell=True, check=False, capture_output=True)
+        logger.debug("command output:{0}".format(output.stdout.decode("utf-8")))
+        logger.debug("return code: {0}".format(output.returncode))
+        if output.stderr.decode("utf-8") != '':
+            raise CmdError(output.stderr.decode("utf-8"))
+
 
 # TODO DRY logging (make a decorator instead?)
 class AppManager(object):
@@ -30,7 +32,6 @@ class AppManager(object):
     ]
 
     def __init__(self, apps: [], root: str):
-        self.logger = logging.getLogger('APP_MGER')
         self.root = root
         self.apps = apps
         self.functions = {
@@ -49,10 +50,18 @@ class AppManager(object):
             ls_settings = [[elt.rstrip("\n") for elt in line.split("\t")] for line in f.readlines()]
         settings = [{ls_settings[0][k]: ls_settings[i][k] for k in range(len(ls_settings[0]))} for i in
                     range(1, len(ls_settings))]
-        return {elt['name']:App(name=elt['name'],path_project=elt['directory'],version_py=elt['py_version'],entry_point=elt['entry_point'],env=elt['venv']) for elt in settings}
+        return {
+            elt['name']:
+                App(
+                    name=elt['name'],
+                    path_project=elt['directory'],
+                    version_py=elt['py_version'],
+                    entry_point=elt['entry_point'],
+                    env=elt['venv'])
+            for elt in settings}
 
     def mk_app(self, name: str, **kwargs):
-        self.logger.info("App creation for {0}: Starting...".format(name))
+        logger.info("App creation for {0}: Starting...".format(name))
         force_regen = kwargs.pop('force_regen', False)
         if self.check_app(name) and force_regen:
             self.rm_app(name)
@@ -64,7 +73,9 @@ class AppManager(object):
             else:
                 cmds.append(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
             cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
-            cmds.append(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(self.apps[name].path_project,self.apps[name].env))
+            cmds.append(
+                r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'
+                .format(self.apps[name].path_project, self.apps[name].env))
         run_cmds(cmds=cmds)
 
         # Generate batch launcher
@@ -76,25 +87,26 @@ class AppManager(object):
                 batch[i] = row
         with open(r'{0}\scripts\{1}.bat'.format(self.root,name),'w+') as f:
             f.write("".join(batch))
-        self.logger.info("App creation for {0}: Completed!".format(name))
+        logger.info("App creation for {0}: Completed!".format(name))
 
     def up_app(self, name: str):
-        self.logger.info("App update for {0}: Starting...".format(name))
+        logger.info("App update for {0}: Starting...".format(name))
         cmds = []
         cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
                                                                          self.apps[name].path_project))
-        cmds.append(r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'.format(
-            self.apps[name].path_project, self.apps[name].env))
+        cmds.append(
+            r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'
+            .format(self.apps[name].path_project, self.apps[name].env))
         run_cmds(cmds)
-        self.logger.info("App update for {0}: Completed!".format(name))
+        logger.info("App update for {0}: Completed!".format(name))
 
     def rm_app(self, name: str):
-        self.logger.info("App removal for {0}: Starting...".format(name))
+        logger.info("App removal for {0}: Starting...".format(name))
         nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env == self.apps[name].env])
         if nb_venv_uses <= 1:
             run_cmds(['rmvirtualenv {0}'.format(self.apps[name].env)])
         os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
-        self.logger.info("App removal for {0}: Completed!".format(name))
+        logger.info("App removal for {0}: Completed!".format(name))
 
     def check_app(self, name: str):
         return os.path.exists(r"{0}\scripts\{1}.bat".format(self.root, name))

@@ -1,4 +1,4 @@
-import yggdrasil.runner as ygg
+import yggdrasil.main as ygg
 
 if __name__ == "__main__":
     ygg.run("remove",apps="foobar")

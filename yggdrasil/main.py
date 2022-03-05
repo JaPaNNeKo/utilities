@@ -1,6 +1,7 @@
 import os
-from yggdrasil import app_manager
+import yggdrasil.app_manager as app_manager
 import warnings
+from yggdrasil.logger import logger
 
 
 def create_seed():
@@ -22,10 +23,27 @@ def create_seed():
 
 def run(cmd: str, **kwargs):
     apps = kwargs.pop("apps", None)
+    show_debug = kwargs.pop("show_debug")
+    if show_debug:
+        logger.setLevel("DEBUG")
+    else:
+        logger.setLevel("INFO")
     mger = app_manager.AppManager.from_root(r'{0}\Yggdrasil'.format(app_manager.PATH_YGGDRASIL))
     if apps is None:
         apps = mger.apps.keys()
-    elif type(apps) == str:
+    elif isinstance(apps, str):
         apps = [apps]
     for name_app in apps:
         mger.functions[cmd](name_app, **kwargs)
+
+
+def create(apps, show_debug=False, force_regen=False):
+    run("make", apps=apps, show_debug=show_debug)
+
+
+def remove(apps, show_debug=False):
+    run("remove", apps=apps, show_debug=show_debug)
+
+
+def update(apps, show_debug=False):
+    run("update", apps=apps, show_debug=show_debug)
