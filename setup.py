@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name='yggdrasil',
   packages=['yggdrasil'],
-  version='1.1',
+  version='2.0',
   license='MIT',
   description='Apps handler for in-house python scripts',
   author='mx',

@@ -26,6 +26,14 @@ def run_cmds(cmds:[]):
 
 # TODO DRY logging (make a decorator instead?)
 class AppManager(object):
+    """
+    Class managing the creation, deletion and update of 'apps'.
+    Each app is defined as the combination of:
+    - A name (as will be called from command line)
+    - A virtual environment (containing the project dependencies)
+    - An entry point (triggered when app name called from cmd)
+    These configurations can be defined through a settings.txt file after yggdrasil seed has been generated.
+    """
     _replacements = [
         ('#name_venv#', 'env'),
         ('#entry_point#', 'entry_point'),
@@ -61,6 +69,13 @@ class AppManager(object):
             for elt in settings}
 
     def mk_app(self, name: str, **kwargs):
+        """
+        Creates an application.
+        :param name: Name of the application
+        :param force_regen: Default is False. If True, app will be entirely removed before being re-created
+        :param debug: Default is False. If False, crashing on cmds execution will skip the rest of the creation
+        If True, then it will raise a CmdError.
+        """
         logger.info("App creation for {0}: Starting...".format(name))
         force_regen = kwargs.pop('force_regen', False)
         debug = kwargs.pop('debug', False)
@@ -99,6 +114,10 @@ class AppManager(object):
         logger.info("App creation for {0}: Completed!".format(name))
 
     def up_app(self, name: str):
+        """
+        Updates an application
+        :param name: Name of the application
+        """
         logger.info("App update for {0}: Starting...".format(name))
         cmds = []
         cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
@@ -111,6 +130,10 @@ class AppManager(object):
         logger.info("App creation for {0}: Completed!".format(name))
 
     def rm_app(self, name: str):
+        """
+        Deletes an application
+        :param name: Name of the application
+        """
         logger.info("App deletion for {0}: Starting...".format(name))
         nb_venv_uses = len([elt for elt in self.apps if self.apps[elt].env == self.apps[name].env])
         if nb_venv_uses == 1:
@@ -120,4 +143,8 @@ class AppManager(object):
         logger.info("App creation for {0}: Completed!".format(name))
 
     def check_app(self, name: str):
+        """
+        Checks whether an application is already installed in yggdrasil root.
+        :param name: Name of the application
+        """
         return os.path.exists(r"{0}\scripts\{1}.bat".format(self.root, name))

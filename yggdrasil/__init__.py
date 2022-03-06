@@ -1,6 +1,6 @@
 from yggdrasil.main import (
     run,
-    create_seed,
+    plant_seed,
     create,
     remove,
     update

@@ -2,7 +2,15 @@ import logging
 
 
 class CustomFormatter(logging.Formatter):
-    """Logging Formatter to add colors and count warning / errors"""
+    """
+    Custom logging formatter:
+    - Info messages are shown in cyan
+    - Debug messages are shown in white
+    - Warning messages are shown in yellow
+    - Error messages are shown in red
+    - Critical messages are shown in white & red background
+    Each message shows time, name of the module, criticality leven and line number.
+    """
     grey = "\x1b[0;37m"
     cyan = "\x1b[0;36m"
     yellow = "\x1b[0;33m"
