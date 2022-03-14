@@ -129,7 +129,7 @@ class AppManager(object):
         logger.info("App update for {0}: Completed!".format(name))
         logger.info("App creation for {0}: Completed!".format(name))
 
-    def rm_app(self, name: str):
+    def rm_app(self, name: str, **kwargs):
         """
         Deletes an application
         :param name: Name of the application
@@ -142,7 +142,7 @@ class AppManager(object):
             os.remove(r"{0}\scripts\{1}.bat".format(self.root,name))
         logger.info("App creation for {0}: Completed!".format(name))
 
-    def check_app(self, name: str):
+    def check_app(self, name: str, **kwargs):
         """
         Checks whether an application is already installed in yggdrasil root.
         :param name: Name of the application
