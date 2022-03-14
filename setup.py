@@ -10,5 +10,5 @@ setup(
   keywords=['yggdrasil', 'app', 'virtual', 'environment'],
   install_requires=['virtualenvwrapper-win'],
   include_package_data=True,
-  package_data={'': ['*.txt']},
+  package_data={'yggdrasil': ['data/*.txt']},
 )
