@@ -16,15 +16,13 @@ class CmdError(Exception):
 
 def run_cmds(cmds:[]):
     for cmd in cmds:
-        logger.debug("Launching command {0}".format(cmd))
         output = subprocess.run(cmd, shell=True, check=False, capture_output=True)
         logger.debug("command output:{0}".format(output.stdout.decode("utf-8")))
         logger.debug("return code: {0}".format(output.returncode))
-        if output.stderr.decode("utf-8") != '':
+        if output.returncode != 0:
             raise CmdError(output.stderr.decode("utf-8"))
 
 
-# TODO DRY logging (make a decorator instead?)
 class AppManager(object):
     """
     Class managing the creation, deletion and update of 'apps'.
@@ -88,9 +86,9 @@ class AppManager(object):
                 cmds.append(r'py -m venv {0}\venvs\{1}'.format(self.root, self.apps[name].env))
             else:
                 cmds.append(r'py -{0} -m venv {1}\venvs\{2}'.format(self.apps[name].version_py, self.root, self.apps[name].env))
-            cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,self.apps[name].path_project))
+            cmds.append('workon {0} & setprojectdir "{1}"'.format(self.apps[name].env, self.apps[name].path_project))
             cmds.append(
-                r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'
+                r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt"'
                 .format(self.apps[name].path_project, self.apps[name].env))
         try:
             run_cmds(cmds=cmds)
@@ -120,10 +118,10 @@ class AppManager(object):
         """
         logger.info("App update for {0}: Starting...".format(name))
         cmds = []
-        cmds.append('workon {0} & setprojectdir "{1}" & deactivate'.format(self.apps[name].env,
+        cmds.append('workon {0} & setprojectdir "{1}"'.format(self.apps[name].env,
                                                                          self.apps[name].path_project))
         cmds.append(
-            r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt" & deactivate'
+            r'workon {1} & pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{0}\requirements.txt"'
             .format(self.apps[name].path_project, self.apps[name].env))
         run_cmds(cmds)
         logger.info("App update for {0}: Completed!".format(name))
