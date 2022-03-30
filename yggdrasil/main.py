@@ -1,5 +1,5 @@
 import os
-import yggdrasil.app_manager as app_manager
+import yggdrasil.app_manager_zzz as app_manager
 import warnings
 from yggdrasil.logger import logger
 
@@ -15,7 +15,7 @@ def plant_seed():
     - settings: Store congiguration file for app creation
     - scripts: Store batch files for each app
     At runtime, this function will also create a settings.txt template (under settings folder) and a
-    ls_tools.bat file (under scripts folder), listing the apps installed under yggdrasil
+    ls_tools.bat file (under scripts folder), listing the app installed under yggdrasil
     """
     path_root = '{0}\Yggdrasil'.format(app_manager.PATH_YGGDRASIL)
     os.mkdir(path_root)
@@ -42,7 +42,7 @@ def run(cmd: str, **kwargs):
     This function gives access to the underlying runner for any command on the AppManager, in case finer control
     / more agnostic code is needed instead of the simpler functions of the module (create, remove, update)
     """
-    apps = kwargs.pop("apps", None)
+    apps = kwargs.pop("app", None)
     debug = kwargs.get("debug")
     if debug:
         logger.setLevel("DEBUG")

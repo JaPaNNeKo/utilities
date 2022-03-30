@@ -1,0 +1,5 @@
+echo off
+call 'path_ygg\#name_venv#\scripts\activate'
+call "#entry_point#"
+call deactivate
+echo on
