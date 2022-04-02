@@ -97,6 +97,7 @@ class AppManager(object):
 if __name__ == "__main__":
     from pprint import pprint
     mger = AppManager.from_root(r"C:\Users\maxim\Documents\Yggdrasil")
-    mger.remove("tool_flat", debug=True)
-    mger.create("tool_flat", debug=True)
+    # mger.remove("tool_flat", debug=True)
+    # mger.create("tool_flat", debug=True)
+    mger.create("tool_git")
     import pdb; pdb.set_trace()
