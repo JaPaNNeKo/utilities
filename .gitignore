@@ -131,3 +131,7 @@ dmypy.json
 
 # Pycharm folders
 .idea
+
+# Others
+web_based_pull_todo.md
+tests/

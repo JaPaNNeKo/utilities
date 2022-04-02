@@ -1,25 +1,23 @@
 import os
 from collections import namedtuple
-from yggdrasil.app.utilities import logger, _run_cmds
+from yggdrasil.app.utilities import logger, run_cmds
 
 # TODO Write __repr__ & __str__ for all classes
 # TODO unmix between app 'name' (i.e. how it's called in settings file) and its 'name i.e. entry points' (how it's called once installed from cmd)
-
+# TODO Enforce some class attributes to be implemented in subclasses
 
 class AppGeneric(object):
-    # _replacements = [
-    #     ('#name_venv#', 'env'),
-    #     ('#entry_point#', 'entry_point'),
-    # ]
-
+    _identifier = None
     name_settings_file = None
     parameters = None
 
-    def __init__(self, name: str, **kwargs):
-        self.name = name
-        self.names_callable = None # To refine, list?
-        self.venv_name = kwargs.pop('venv_name')
-        self.is_installed = kwargs.pop('is_installed')
+    def __init__(self, *args, **kwargs):
+        # self.name = kwargs.pop("name")
+        # self.names_callable = None # To refine, list?
+        # self.venv_name = kwargs.pop('venv_name')
+        # self.is_installed = kwargs.pop('is_installed')
+        # TODO parametrise
+        # self.is_installed = False
 
         # TODO remove / replace?
         self.functions = {
@@ -27,7 +25,7 @@ class AppGeneric(object):
             'create': self.create,
         }
         # TODO Parametrise
-        self.is_installed = 'NOOO'
+        self.is_installed = False
 
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         raise Exception("Function should be overriden by subclass")
@@ -39,7 +37,7 @@ class AppGeneric(object):
         """
         logger.info("App deletion for {0}: Starting...".format(self.name))
         if delete_venv:
-            _run_cmds(['rmvirtualenv {0}'.format(self.venv_name)])
+            run_cmds(['rmvirtualenv {0}'.format(self.venv_name)])
         if os.path.exists(r"{0}\{1}.bat".format(path_scripts, self.name)):
             os.remove(r"{0}\{1}.bat".format(path_scripts, self.name))
 

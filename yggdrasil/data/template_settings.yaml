@@ -1,0 +1,20 @@
+# meta information on this file for tracking
+author: ??? # who made the latest update to the file
+date: ??? # date of latest update to this file
+base: ??? # production / dev
+# configuration information for the different apps
+configurations:
+# configuration requirements for a local-installed app
+    -   name: myapp # name of app as called through yggdrasil
+        type: local # local
+        py_version: 3.9 # python version to use to run app (this python version needs to be installed on your computer prior to running yggdrasil)
+        venv_name: venv_myapp # name of virtual environment (should be unique across all settings)
+        directory: path\to\project\directory # path to the pyton project directory
+        entry_points: # list of entry points in your project directory
+          - entry_point_1.py
+          - entry_point_2.py
+# configuration requirements for a web-installed app
+    -   name: ??? # name of the app as called through yggdrasil
+        type: web #  web
+        py_version: ??? # python version to use to run app (this python version needs to be installed on your computer prior to running yggdrasil)
+        url: ??? # url the code repository is stored at (git+ prefix must be included if installed from a github repo)

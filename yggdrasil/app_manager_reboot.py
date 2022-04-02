@@ -2,8 +2,8 @@ import os
 from collections import namedtuple
 import subprocess
 from yggdrasil.logger import logger
+import yaml
 import yggdrasil.app as app
-from yggdrasil.app.utilities import _parse_settings
 
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 _PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
@@ -34,20 +34,32 @@ class AppManager(object):
 
     @classmethod
     def _load_configs(cls, root):
-        #TODO Not a fan of concatenating settings path at different levels
         apps = []
-        for App in cls.classes_apps:
-            settings = _parse_settings('{0}\{1}'.format(root, App.name_settings_file))
-            for config in settings:
-                name_app = config.pop('name')
-                apps.append(App(name_app, **config))
+        with open(r"{0}\settings_yaml.yaml".format(root)) as file:
+            try:
+                settings = yaml.safe_load(file)
+            except yaml.YAMLError as exc:
+                print(exc)
+        for config in settings['configurations']:
+            AppsMatching = [App for App in cls.classes_apps if config['type']==App._identifier]
+            # TODO exception management if no type field in yaml
+            if len(AppsMatching) == 0:
+                raise Exception("Problem: Unrecognised app type")
+            if len(AppsMatching) > 1:
+                raise Exception("Problem: Several apps match this type")
+            AppMatch = AppsMatching[0]
+            try:
+                apps.append(AppMatch(**config))
+            except KeyError as e:
+                raise Exception("Settings file misdefined - missing value for xxx") # TODO refine
         return apps
 
     @classmethod
     def _seed_configs(cls, root):
-        for type_app, App in cls.classes_apps:
-            with open(r'{0}\settings\{1}'.format(root, App.name_settings_file), 'w+') as f:
-                f.write('\t'.join(App.parameters))
+        with open(r'{0}\data\template_settings.yaml'.format(_PATH_INTERNAL)) as f:
+            batch_ls = f.readlines()
+        with open(r'{0}\settings\settings.yaml'.format(root), 'w+') as f:
+            f.write("".join(batch_ls))
 
     def _find_app(self, name):
         apps_match = [app for app in self.apps if app.name == name]
@@ -83,6 +95,8 @@ class AppManager(object):
 
 
 if __name__ == "__main__":
+    from pprint import pprint
     mger = AppManager.from_root(r"C:\Users\maxim\Documents\Yggdrasil")
+    mger.remove("tool_flat", debug=True)
     mger.create("tool_flat", debug=True)
     import pdb; pdb.set_trace()

@@ -1,36 +1,77 @@
 from yggdrasil.app.app_generic import AppGeneric
-from yggdrasil.app.utilities import _parse_settings, _run_cmds, CmdError
-
+from yggdrasil.app.utilities import run_cmds, CmdError, generate_custom_batch
+from yggdrasil.logger import logger
+import os
+import yaml
+import yggdrasil.informer.main as informer
 
 class AppWeb(AppGeneric):
-    name_settings_file = 'settings-web.txt'
-    _replacements = [
-        ('#name_venv#', 'env'),
-        ('#entry_point#', 'entry_point'),
-    ]
+    _identifier = 'web'
 
-    def __init__(self, name, **kwargs):
-        super().__init__(name, **kwargs)
+    def __init__(self,  *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = kwargs.pop("name")
+        self.venv_name = 'venv_{0}'.format(self.name)
         self.url = kwargs.pop("url")
         self.version_py = kwargs.pop('py_version')
+        self.repo_name = self.split("/")[-1].split(".")[0] # TODO a bit ugly
 
-    def create(self):
+    def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         # TODO check if any necessary content will be missing (e.g. entry points, etc...)
-        pass
+        logger.info("App creation for {0}: Starting...".format(self.name))
+        force_regen = kwargs.pop('force_regen', False)
+        debug = kwargs.pop('debug', False)
+        if super().check() and force_regen:
+            self.remove()
+        # Generate virtual environment
+        cmds = []
+        if not os.path.isdir(r'{0}\{1}'.format(path_venvs, self.venv_name)):
+            if self.version_py == '':
+                cmds.append(r'py -m venv {0}\{1}'.format(path_venvs, self.venv_name))
+            else:
+                cmds.append(r'py -{0} -m venv {1}\{2}'.format(self.version_py, path_venvs, self.venv_name))
+            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1}'.format(path_venvs, self.url))
+            # TODO parametrise ygg-helpers url
+            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1}'.format(path_venvs,
+                                                                                                                                       'git+https://www.github.com/mx-personal/ygg-helpers.git'))
 
-    @classmethod
-    def seed_settings(cls, root):
-        with open(r'{0}\settings\{1}'.format(root, cls._name_settings_file), 'w+') as f:
-            f.write('name\tpy_version\turl')
+            run_cmds(cmds)
+            run_cmds([
+                ""
+            ])
 
-    # @classmethod
-    # def load_settings(cls, root) -> []:
-    #     settings = _parse_settings('{0}\{1}'.format(root, cls._name_settings_file))
-    #     return [
-    #         AppWeb(
-    #             name=config['name'],
-    #             py_version=config['py_version'],
-    #             url=config['url'],
-    #         )
-    #         for config in settings
-    #     ]
+            cmds = []
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venvs, self.repo_name))
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venvs, "ygg-helpers"))
+            run_cmds(cmds)
+
+            # TODO will leave some trash, clean up dependencies too
+            # TODO keep if debug mode, delete otherwise
+            info_repo = informer.DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venvs, self.repo_name))
+            info_ygg_help = informer.DistInfo.from_yaml(r'{0}\ygginfo-ygg-helpers.yaml'.format(path_venvs))
+
+            cmds = [r"{0}\Scripts\activate && pip uninstall ygg-helpers"]
+            run_cmds(cmds)
+
+            # TODO Parametrise bypassing SSL security
+            cmds = [r"{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org  -r {1}".format(path_venvs, req.path) for req in info_repo.requirements]
+            run_cmds(cmds)
+
+        # TODO Reinclude debugging & cmd error management differently
+
+        # Generate batch launcher
+        map_replac_eps = [[
+            ("#path_venvs#", path_venvs),
+            ("#name_venv#", self.venv_name),
+            ("#entry_point#", ep.path),
+        ] for ep in info_repo.entry_points]
+
+        for map in map_replac_eps:
+            generate_custom_batch(
+                source=r'{0}\template_launcher_web.txt'.format(path_templates),
+                destination=r'{0}\{1}.bat'.format(path_scripts, self.name),
+                replacements=map,
+            )
+
+        logger.info("App creation for {0}: Completed!".format(self.name))
+
