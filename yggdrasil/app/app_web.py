@@ -39,15 +39,15 @@ class AppWeb(AppGeneric):
             run_cmds(cmds)
             cmds = []
             cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venv, self.repo_name))
-            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venv, "ygg-helpers"))
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venv, "yggdrasil"))
             run_cmds(cmds)
 
             # TODO will leave some trash, clean up dependencies too
             # TODO keep if debug mode, delete otherwise
             info_repo = informer.DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
-            info_ygg_help = informer.DistInfo.from_yaml(r'{0}\ygginfo-ygg-helpers.yaml'.format(path_venv))
+            info_ygg_help = informer.DistInfo.from_yaml(r'{0}\ygginfo-yggdrasil.yaml'.format(path_venv))
 
-            cmds = [r"{0}\Scripts\activate && pip uninstall ygg-helpers"]
+            cmds = [r"{0}\Scripts\activate && pip uninstall yggdrasil"]
             run_cmds(cmds)
 
             # TODO Parametrise bypassing SSL security
