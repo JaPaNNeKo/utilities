@@ -16,6 +16,7 @@ class AppWeb(AppGeneric):
         self.version_py = kwargs.pop('py_version')
         self.repo_name = self.url.split("/")[-1].split(".")[0] # TODO a bit ugly
 
+    # TODO Break down in more modulare methods?
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
         # TODO check if any necessary content will be missing (e.g. entry points, etc...)
@@ -31,15 +32,21 @@ class AppWeb(AppGeneric):
                 cmds.append(r'py -m venv {0}'.format(path_venv))
             else:
                 cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
-            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1}'.format(path_venv, self.url))
+            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'.format(path_venv, self.url))
             # TODO parametrise ygg-helpers url
             # TODO remove @improvements
-            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1}'
-                        .format(path_venv,'git+https://github.com/mx-personal/yggdrasil.git@improvements'))
+            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'
+                        .format(path_venv, 'git+https://github.com/mx-personal/yggdrasil.git@improvements'))
+
+            # TODO README req for github tools - no dash, no space on repo name (or make ygg replace - with _ for dist info finding?)
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} && deactivate".format(path_venv, self.repo_name))
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} && deactivate".format(path_venv, "yggdrasil"))
+
+            print(cmds)
+            import pdb;pdb.set_trace()
             run_cmds(cmds)
             cmds = []
-            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venv, self.repo_name))
-            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1}".format(path_venv, "yggdrasil"))
+            import pdb;pdb.set_trace()
             run_cmds(cmds)
 
             # TODO will leave some trash, clean up dependencies too

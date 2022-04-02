@@ -10,6 +10,7 @@ class CmdError(Exception):
 
 def run_cmds(cmds:[]):
     for cmd in cmds:
+        print(cmd)
         output = subprocess.run(cmd, shell=True, check=False, capture_output=True)
         logger.debug("command output:{0}".format(output.stdout.decode("utf-8")))
         logger.debug("return code: {0}".format(output.returncode))
