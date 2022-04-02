@@ -4,6 +4,7 @@ import sys
 from os.path import exists
 from collections import namedtuple
 
+
 def get_internal_info(distribution: str) -> {}:
     dist = imp_md.distribution(distribution)
     eps_console = dist.entry_points.select(group="console_scripts")
