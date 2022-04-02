@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
   name='yggdrasil',
-  packages=find_packages,
+  packages=find_packages(),
   version='2.0',
   license='MIT',
   description='Apps handler for in-house python scripts',
