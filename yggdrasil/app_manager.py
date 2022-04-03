@@ -5,19 +5,21 @@ from yggdrasil.settings import Settings
 
 # todo any way to nicely marry __subclass__ & code completion?
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
-_PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
+PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
 
 class AppManager(object):
     def __init__(self, apps: [], root: str):
         self.path_root = root
         self.path_settings = r'{0}\settings'.format(self.path_root)
-        self.path_template_scripts = r'{0}\data'.format(_PATH_INTERNAL)
+        self.path_template_scripts = r'{0}\data'.format(PATH_INTERNAL)
         self.path_scripts = r'{0}\scripts'.format(self.path_root)
         self.path_envs = r'{0}\venvs'.format(self.path_root)
-
         self.apps = apps
-        # TODO Add log functionality (logging which app are installed etc...) + crash if log non resolvable
+        self.functions = {
+            "create": self.create,
+            "remove": self.remove,
+        }
 
     @classmethod
     def _get_status(cls, root, app: str):
@@ -54,7 +56,7 @@ class AppManager(object):
 
     @classmethod
     def seed_configs(cls, root):
-        with open(r'{0}\data\template_settings.yaml'.format(_PATH_INTERNAL)) as f:
+        with open(r'{0}\data\template_settings.yaml'.format(PATH_INTERNAL)) as f:
             batch_ls = f.readlines()
         with open(r'{0}\settings\settings.yaml'.format(root), 'w+') as f:
             f.write("".join(batch_ls))
@@ -74,10 +76,8 @@ class AppManager(object):
             path_scripts=self.path_scripts,
             path_venvs=self.path_envs,
             path_templates=self.path_template_scripts,
-            create_venv=len(venv_match) == 0, #TODO carry impact into functions
             **kwargs
         )
-        # TODO Error handling if name isn't recorded in logs / settings
 
     def remove(self, app: str, **kwargs):
         _app = self._find_app(app)
@@ -87,27 +87,3 @@ class AppManager(object):
             path_templates=self.path_template_scripts,
             **kwargs
         )
-        # TODO Error handling if name isn't recorded in logs / settings
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-    mger = AppManager.from_root(r"C:\Users\maxim\Documents\Yggdrasil")
-    print(mger.show_apps())
-    import pdb; pdb.set_trace()
-    # mger.create("tool_local", debug=True)
-    mger.create("tool_git", debug=True)
-
-
-    # mger.remove("tool_local", debug=True)
-    # mger.remove("tool_git", debug=True)
-
-
-    # local based tests
-    # mger.create("tool_local", debug=True)
-    # mger.remove("tool_local", debug=True)
-
-    # git based tests
-    # mger.create("tool_git", debug=True)
-    # mger.remove("tool_git", debug=True)
-    import pdb; pdb.set_trace()

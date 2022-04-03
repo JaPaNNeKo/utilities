@@ -1,6 +1,6 @@
 import os
-import yggdrasil.app_manager_zzz as app_manager
 import warnings
+from yggdrasil.app_manager import AppManager, PATH_YGGDRASIL, PATH_INTERNAL
 from yggdrasil.logger import logger
 
 
@@ -17,14 +17,14 @@ def plant_seed():
     At runtime, this function will also create a settings.txt template (under settings folder) and a
     ls_tools.bat file (under scripts folder), listing the app installed under yggdrasil
     """
-    path_root = '{0}\Yggdrasil'.format(app_manager.PATH_YGGDRASIL)
+    path_root = '{0}\Yggdrasil'.format(PATH_YGGDRASIL)
     os.mkdir(path_root)
     os.mkdir(r'{0}\venvs'.format(path_root))
     os.mkdir(r'{0}\scripts'.format(path_root))
     os.mkdir(r'{0}\settings'.format(path_root))
     os.mkdir(r'{0}\tools'.format(path_root))
 
-    with open(r'{0}\data\ls_tools.txt'.format(app_manager._PATH_INTERNAL)) as f:
+    with open(r'{0}\data\ls_tools.txt'.format(PATH_INTERNAL)) as f:
         batch_ls = f.readlines()
     with open(r'{0}\scripts\ls_tools.bat'.format(path_root), 'w+') as f:
         f.write("".join(batch_ls))
@@ -48,16 +48,16 @@ def run(cmd: str, **kwargs):
         logger.setLevel("DEBUG")
     else:
         logger.setLevel("INFO")
-    mger = app_manager.AppManager.from_root(r'{0}\Yggdrasil'.format(app_manager.PATH_YGGDRASIL))
+    mger = AppManager.from_root(r'{0}\Yggdrasil'.format(PATH_YGGDRASIL))
     if apps is None:
-        apps = mger.apps.keys()
+        apps = [app.name for app in mger.apps]
     elif isinstance(apps, str):
         apps = [apps]
     for name_app in apps:
         mger.functions[cmd](name_app, **kwargs)
 
 
-def create(apps, debug=False, force_regen=False):
+def create(apps=None, debug=False, force_regen=False):
     """
     Creates an application
     :param apps: Name of the application (as per settings file)
@@ -66,10 +66,10 @@ def create(apps, debug=False, force_regen=False):
     :param force_regen: Force re-creation of the app if it already exists or not. If False & the app already exists,
     creation will be skipped. If True, then app will be completely removed before being re-created
     """
-    run("make", apps=apps, debug=debug, force_regen=force_regen)
+    run("create", apps=apps, debug=debug, force_regen=force_regen)
 
 
-def remove(apps, debug=False):
+def remove(apps=None, debug=False):
     """
     Removes an application
     :param apps: Name of the application (as per settings file)
@@ -77,13 +77,3 @@ def remove(apps, debug=False):
     False by default
     """
     run("remove", apps=apps, debug=debug)
-
-
-def update(apps, debug=False):
-    """
-    Updates an application
-    :param apps: Name of the application (as per settings file)
-    :param debug: Run in debug mode (True) or standard mode (False), affecting level of logging & app creation behaviour.
-    False by default
-    """
-    run("update", apps=apps, debug=debug)

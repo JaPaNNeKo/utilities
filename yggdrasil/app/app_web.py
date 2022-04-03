@@ -38,15 +38,13 @@ class AppWeb(AppGeneric):
                 cmds.append(r'py -m venv {0}'.format(path_venv))
             else:
                 cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
-            cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'.format(path_venv, self.url_project))
-            cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'
+            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'.format(path_venv, self.url_project))
+            cmds.append(r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'
                         .format(path_venv, _url_helpers))
 
             cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, self.repo_name))
             cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, "dist_meta"))
 
-            run_cmds(cmds)
-            cmds = []
             run_cmds(cmds)
 
             # TODO will leave some trash, clean up dependencies too
@@ -90,7 +88,6 @@ class AppWeb(AppGeneric):
         for ep in info_repo.entry_points:
             os.remove('{0}\{1}.bat'.format(path_scripts,ep.name))
 
-        # todo check not a common folder
         if not os.path.exists(r'{0}\pyvenv.cfg'.format(path_venv)) or not os.path.exists(r'{0}\Scripts\activate'.format(path_venv)):
             raise Exception("Error - The folder about to be deleted is not a virtual environment")
         else:
