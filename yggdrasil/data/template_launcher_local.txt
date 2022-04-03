@@ -1,8 +1,5 @@
 echo off
-set path_return=%cd%
-call workon #name_venv#
-call cdproject
-call "#entry_point#"
+call "#path_venv#\Scripts\activate"
+call "#directory#\#entry_point#"
 call deactivate
-cd %path_return%
 echo on

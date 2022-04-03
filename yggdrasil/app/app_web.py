@@ -1,10 +1,10 @@
 from yggdrasil.app.app_generic import AppGeneric
-from yggdrasil.app.utilities import run_cmds, CmdError, generate_custom_batch
+from yggdrasil.app.utilities import run_cmds, generate_custom_batch
 from yggdrasil.logger import logger
 import os
-import yaml
-import yggdrasil.informer.main as informer
 from ygg_helpers.main import DistInfo
+import shutil
+
 
 class AppWeb(AppGeneric):
     _identifier = 'web'
@@ -77,3 +77,22 @@ class AppWeb(AppGeneric):
 
         logger.info("App creation for {0}: Completed!".format(self.name))
 
+    def remove(self, path_scripts:str, path_venvs: str, **kwargs):
+        """
+        Deletes an application
+        :param name: Name of the application
+        """
+        logger.info("App deletion for {0}: Starting...".format(self.name))
+        path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
+        info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
+        for ep in info_repo.entry_points:
+            os.remove('{0}\{1}.bat'.format(path_scripts,ep.name))
+
+        # todo check not a common folder
+        if not os.path.exists(r'{0}\pyvenv.cfg'.format(path_venv)) or not os.path.exists(r'{0}\Scripts\activate'.format(path_venv)):
+            raise Exception("Error - The folder about to be deleted is not a virtual environment")
+        else:
+            shutil.rmtree(path_venv)
+
+        logger.info("App creation for {0}: Completed!".format(self.name))
+        self.is_installed = False

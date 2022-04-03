@@ -10,8 +10,8 @@ setup(
   url='https://github.com/mx-personal/yggdrasil',
   keywords=['yggdrasil', 'app', 'virtual', 'environment'],
   install_requires=[
-    # 'pyyaml',
-    # 'importlib_metadata',
+    'pyyaml',
+    'importlib_metadata',
   ],
   include_package_data=True,
   package_data={'yggdrasil': ['data/*.txt']},

@@ -25,8 +25,8 @@ class AppManager(object):
 
     def _get_status(self):
         pass
-        # List all apps that are fully installed, i.e. have a venv & an external entry point
-        # Cross reference against settings
+        # todo List all apps that are fully installed, i.e. have a venv & an external entry point
+        # todo Cross reference against settings
 
     @classmethod
     def from_root(cls, root: str):
@@ -83,12 +83,10 @@ class AppManager(object):
 
     def remove(self, app: str, **kwargs):
         _app = self._find_app(app)
-        venv_match = [app for app in self.apps if app.venv_name == _app.venv_name and app.is_installed]
         _app.remove(
             path_scripts=self.path_scripts,
             path_venvs=self.path_envs,
             path_templates=self.path_template_scripts,
-            delete_venv=len(venv_match) == 1,
             **kwargs
         )
         # TODO Error handling if name isn't recorded in logs / settings
@@ -97,7 +95,21 @@ class AppManager(object):
 if __name__ == "__main__":
     from pprint import pprint
     mger = AppManager.from_root(r"C:\Users\maxim\Documents\Yggdrasil")
-    # mger.remove("tool_flat", debug=True)
-    # mger.create("tool_flat", debug=True)
-    mger.create("tool_git")
+    # mger.create("tool_local", debug=True)
+    # mger.create("tool_git", debug=True)
+
+
+    mger.remove("tool_local", debug=True)
+    mger.remove("tool_git", debug=True)
+
+
+    # local based tests
+    # mger.create("tool_local", debug=True)
+    # mger.remove("tool_local", debug=True)
+
+    # git based tests
+    # mger.create("tool_git", debug=True)
+    # mger.remove("tool_git", debug=True)
     import pdb; pdb.set_trace()
+
+# todo add list apps function
