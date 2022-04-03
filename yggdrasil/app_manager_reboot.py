@@ -1,6 +1,6 @@
 import os
 from yggdrasil.logger import logger
-import yggdrasil.app as app
+import yggdrasil.app
 from yggdrasil.settings import Settings
 
 # todo any way to nicely marry __subclass__ & code completion?
@@ -19,29 +19,41 @@ class AppManager(object):
         self.apps = apps
         # TODO Add log functionality (logging which app are installed etc...) + crash if log non resolvable
 
-    def _get_status(self):
-        pass
-        # todo List all apps that are fully installed, i.e. have a venv & an external entry point
-        # todo Cross reference against settings
+    @classmethod
+    def _get_status(cls, root, app: str):
+        # todo find better way (e.g. keeping an internal log of installed tools?)
+        return os.path.exists(r'{0}\venvs\venv_{1}'.format(root, app))
+
+    def show_apps(self):
+        display_install = {
+            True: 'Installed (@ {venv})',
+            False: 'Not installed',
+        }
+        import pdb;pdb.set_trace()
+        content = ['App {app_name} (type {type_app}) - Status: {status}'.format(
+            app_name=app.name,
+            type_app=app.__class__.identifier,
+            status=display_install[app.is_installed].format(venv=app.venv_name))
+            for app in self.apps]
+        import pdb;pdb.set_trace()
+
+        return '\n'.join(content)
 
     @classmethod
     def from_root(cls, root: str):
-        return AppManager(apps=cls._load_configs(r'{0}\settings'.format(root)), root=root)
-
-    @classmethod
-    def _load_configs(cls, root):
-        settings = Settings.from_yaml(r"{0}\settings.yaml".format(root), safe=True)
+        settings = Settings.from_yaml(r"{0}\settings\settings.yaml".format(root), safe=True)
         apps = []
-        class_apps = app.Apps()
+        class_apps = yggdrasil.app.Apps()
         for info_app in settings.base_types:
             class_app = class_apps.select(identifier=info_app['type'])
             class_app.set_class_constants(**info_app)
             for config in [config for config in settings.config_apps if config['type'] == class_app.identifier]:
-                apps.append(class_app(**config))
-        return apps
+                is_installed = cls._get_status(root, config['name'])
+                apps.append(class_app(is_installed=is_installed, **config))
+        return AppManager(apps=apps, root=root)
 
     @classmethod
-    def _seed_configs(cls, root):
+    def seed_configs(cls, root):
         with open(r'{0}\data\template_settings.yaml'.format(_PATH_INTERNAL)) as f:
             batch_ls = f.readlines()
         with open(r'{0}\settings\settings.yaml'.format(root), 'w+') as f:
@@ -81,6 +93,8 @@ class AppManager(object):
 if __name__ == "__main__":
     from pprint import pprint
     mger = AppManager.from_root(r"C:\Users\maxim\Documents\Yggdrasil")
+    print(mger.show_apps())
+    import pdb; pdb.set_trace()
     # mger.create("tool_local", debug=True)
     mger.create("tool_git", debug=True)
 
@@ -97,5 +111,3 @@ if __name__ == "__main__":
     # mger.create("tool_git", debug=True)
     # mger.remove("tool_git", debug=True)
     import pdb; pdb.set_trace()
-
-# todo add list apps function

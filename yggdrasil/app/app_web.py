@@ -26,7 +26,6 @@ class AppWeb(AppGeneric):
     # TODO Break down in more modular methods?
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
-        # TODO check if any necessary content will be missing (e.g. entry points, etc...)
         logger.info("App creation for {0}: Starting...".format(self.name))
         force_regen = kwargs.pop('force_regen', False)
         debug = kwargs.pop('debug', False)
@@ -40,12 +39,9 @@ class AppWeb(AppGeneric):
             else:
                 cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
             cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'.format(path_venv, self.url_project))
-            # TODO parametrise ygg-helpers url
-            # TODO remove @improvements
             cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'
                         .format(path_venv, _url_helpers))
 
-            # TODO README req for github tools - no dash, no space on repo name (or make ygg replace - with _ for dist info finding?) - Not sure that's actually a problem, to test out
             cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, self.repo_name))
             cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, "dist_meta"))
 
@@ -80,7 +76,7 @@ class AppWeb(AppGeneric):
                 destination=r'{0}\{1}.bat'.format(path_scripts, info_repo.entry_points[k].name),
                 replacements=map,
             )
-
+        self.is_installed = True
         logger.info("App creation for {0}: Completed!".format(self.name))
 
     def remove(self, path_scripts:str, path_venvs: str, **kwargs):

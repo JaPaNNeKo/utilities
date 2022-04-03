@@ -14,8 +14,7 @@ class AppGeneric(object):
     parameters = None
 
     def __init__(self, *args, **kwargs):
-        # TODO Parametrise
-        self.is_installed = False
+        self.is_installed = kwargs.pop("is_installed")
 
     @classmethod
     def set_class_constants(cls, *args, **kwargs):

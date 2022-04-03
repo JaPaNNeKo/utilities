@@ -63,6 +63,7 @@ class AppLocal(AppGeneric):
                 destination=r'{0}\{1}.bat'.format(path_scripts, self.entry_points[k]['name']),
                 replacements=replacement,
             )
+        self.is_installed = True
         logger.info("App creation for {0}: Completed!".format(self.name))
 
     def remove(self, path_scripts:str, path_venvs: str, path_templates: str, **kwargs):
@@ -72,7 +73,6 @@ class AppLocal(AppGeneric):
         """
         logger.info("App deletion for {0}: Starting...".format(self.name))
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
-        # todo check not a common folder
         if not os.path.exists(r'{0}\pyvenv.cfg'.format(path_venv)) or not os.path.exists(r'{0}\Scripts\activate'.format(path_venv)):
             raise Exception("Error - The folder about to be deleted is not a virtual environment")
         else:
