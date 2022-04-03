@@ -1,11 +1,14 @@
 from yggdrasil.app.app_generic import AppGeneric
-from yggdrasil.app.utilities import run_cmds, CmdError, generate_custom_batch
+from yggdrasil.app.utilities import run_cmds, CmdException, generate_custom_batch
 from yggdrasil.logger import logger
 import os
 import shutil
 
+
 class AppLocal(AppGeneric):
-    _identifier = 'local'
+    identifier = 'local'
+    atts_required = None
+    atts_optional = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,7 +43,7 @@ class AppLocal(AppGeneric):
                 .format(path_venv,self.directory))
         try:
             run_cmds(cmds=cmds)
-        except CmdError as e:
+        except CmdException as e:
             if not debug:
                 logger.error("App {0} could not be created - Rolling back".format(self.name))
                 self.remove(path_scripts, path_venvs, path_templates)

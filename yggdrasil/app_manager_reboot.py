@@ -1,17 +1,14 @@
 import os
-from collections import namedtuple
-import subprocess
 from yggdrasil.logger import logger
-import yaml
 import yggdrasil.app as app
+from yggdrasil.settings import Settings
 
+# todo any way to nicely marry __subclass__ & code completion?
 PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
 _PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
 
 class AppManager(object):
-    classes_apps = app.AppGeneric.__subclasses__()
-
     def __init__(self, apps: [], root: str):
         self.path_root = root
         self.path_settings = r'{0}\settings'.format(self.path_root)
@@ -20,7 +17,6 @@ class AppManager(object):
         self.path_envs = r'{0}\venvs'.format(self.path_root)
 
         self.apps = apps
-        # TODO Crash if multiple app with same name
         # TODO Add log functionality (logging which app are installed etc...) + crash if log non resolvable
 
     def _get_status(self):
@@ -34,24 +30,14 @@ class AppManager(object):
 
     @classmethod
     def _load_configs(cls, root):
+        settings = Settings.from_yaml(r"{0}\settings.yaml".format(root), safe=True)
         apps = []
-        with open(r"{0}\settings_yaml.yaml".format(root)) as file:
-            try:
-                settings = yaml.safe_load(file)
-            except yaml.YAMLError as exc:
-                print(exc)
-        for config in settings['configurations']:
-            AppsMatching = [App for App in cls.classes_apps if config['type']==App._identifier]
-            # TODO exception management if no type field in yaml
-            if len(AppsMatching) == 0:
-                raise Exception("Problem: Unrecognised app type")
-            if len(AppsMatching) > 1:
-                raise Exception("Problem: Several apps match this type")
-            AppMatch = AppsMatching[0]
-            try:
-                apps.append(AppMatch(**config))
-            except KeyError as e:
-                raise Exception("Settings file misdefined - missing value for xxx") # TODO refine
+        class_apps = app.Apps()
+        for info_app in settings.base_types:
+            class_app = class_apps.select(identifier=info_app['type'])
+            class_app.set_class_constants(**info_app)
+            for config in [config for config in settings.config_apps if config['type'] == class_app.identifier]:
+                apps.append(class_app(**config))
         return apps
 
     @classmethod
@@ -96,11 +82,11 @@ if __name__ == "__main__":
     from pprint import pprint
     mger = AppManager.from_root(r"C:\Users\maxim\Documents\Yggdrasil")
     # mger.create("tool_local", debug=True)
-    # mger.create("tool_git", debug=True)
+    mger.create("tool_git", debug=True)
 
 
-    mger.remove("tool_local", debug=True)
-    mger.remove("tool_git", debug=True)
+    # mger.remove("tool_local", debug=True)
+    # mger.remove("tool_git", debug=True)
 
 
     # local based tests

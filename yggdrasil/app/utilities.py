@@ -1,11 +1,14 @@
 import subprocess
 from yggdrasil.logger import logger
+from yggdrasil.exceptions import CmdException
 
 
-class CmdError(Exception):
-    def __init__(self, error: str):
-        self.message = 'Aborting, error in commands communicated:\n{0}'.format(error)
-        super().__init__(self.message)
+def _unique_match(ls):
+    if len(ls) == 0:
+        raise Exception("Problem: Unrecognised app type")
+    if len(ls) > 1:
+        raise Exception("Problem: Several apps match this type")
+    return ls[0]
 
 
 def run_cmds(cmds:[]):
@@ -15,7 +18,7 @@ def run_cmds(cmds:[]):
         logger.debug("command output:{0}".format(output.stdout.decode("utf-8")))
         logger.debug("return code: {0}".format(output.returncode))
         if output.returncode != 0:
-            raise CmdError(output.stderr.decode("utf-8"))
+            raise CmdException(output.stderr.decode("utf-8"))
 
 
 def generate_custom_batch(source: str, destination: str, replacements: []):

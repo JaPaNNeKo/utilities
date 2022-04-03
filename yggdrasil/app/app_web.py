@@ -5,19 +5,25 @@ import os
 from ygg_helpers.main import DistInfo
 import shutil
 
+_url_helpers = None
 
 class AppWeb(AppGeneric):
-    _identifier = 'web'
+    identifier = 'web'
+
+    @classmethod
+    def set_class_constants(cls, *args, **kwargs):
+        global _url_helpers
+        _url_helpers = kwargs.pop("url_helpers")
 
     def __init__(self,  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = kwargs.pop("name")
         self.venv_name = 'venv_{0}'.format(self.name)
-        self.url = kwargs.pop("url")
+        self.url_project = kwargs.pop("url")
         self.version_py = kwargs.pop('py_version')
-        self.repo_name = self.url.split("/")[-1].split(".")[0] # TODO a bit ugly
+        self.repo_name = self.url_project.split("/")[-1].split(".")[0]
 
-    # TODO Break down in more modulare methods?
+    # TODO Break down in more modular methods?
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
         # TODO check if any necessary content will be missing (e.g. entry points, etc...)
@@ -33,15 +39,15 @@ class AppWeb(AppGeneric):
                 cmds.append(r'py -m venv {0}'.format(path_venv))
             else:
                 cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
-            cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'.format(path_venv, self.url))
+            cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'.format(path_venv, self.url_project))
             # TODO parametrise ygg-helpers url
             # TODO remove @improvements
             cmds.append(r'{0}\Scripts\activate && pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org {1} && deactivate'
-                        .format(path_venv, 'git+https://github.com/mx-personal/ygg_helpers.git@corrections'))
+                        .format(path_venv, _url_helpers))
 
             # TODO README req for github tools - no dash, no space on repo name (or make ygg replace - with _ for dist info finding?) - Not sure that's actually a problem, to test out
-            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} && deactivate".format(path_venv, self.repo_name))
-            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} && deactivate".format(path_venv, "ygg_helpers"))
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, self.repo_name))
+            cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, "dist_meta"))
 
             run_cmds(cmds)
             cmds = []
@@ -50,7 +56,7 @@ class AppWeb(AppGeneric):
             # TODO will leave some trash, clean up dependencies too
             # TODO keep if debug mode, delete otherwise
             info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
-            info_ygg_help = DistInfo.from_yaml(r'{0}\ygginfo-ygg_helpers.yaml'.format(path_venv))
+            info_ygg_help = DistInfo.from_yaml(r'{0}\ygginfo-dist_meta.yaml'.format(path_venv))
 
             cmds = [r"{0}\Scripts\activate && pip uninstall -y ygg_helpers".format(path_venv)]
             run_cmds(cmds)
