@@ -7,8 +7,6 @@ import shutil
 
 class AppLocal(AppGeneric):
     identifier = 'local'
-    atts_required = None
-    atts_optional = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,11 +26,12 @@ class AppLocal(AppGeneric):
         logger.info("App creation for {0}: Starting...".format(self.name))
         force_regen = kwargs.pop('force_regen', False)
         debug = kwargs.pop('debug', False)
-        if super().check() and force_regen:
-            self.remove(path_scripts, path_venvs, path_templates)
+        if not self.is_installed or force_regen:
+            if self.is_installed and force_regen:
+                self.remove(path_scripts, path_venvs, path_templates)
         # Generate virtual environment
-        cmds = []
         if not self.is_installed:
+            cmds = []
             path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
             if self.version_py == '':
                 cmds.append(r'py -m venv {0}'.format(path_venv))
@@ -40,29 +39,29 @@ class AppLocal(AppGeneric):
                 cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
             cmds.append(
                 r'{0}\Scripts\activate && pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org -r "{1}\requirements.txt" && deactivate'
-                .format(path_venv,self.directory))
-        try:
-            run_cmds(cmds=cmds)
-        except CmdException as e:
-            if not debug:
-                logger.error("App {0} could not be created - Rolling back".format(self.name))
-                self.remove(path_scripts, path_venvs, path_templates)
-                return
-            else:
-                raise e
+                .format(path_venv, self.directory))
+            try:
+                run_cmds(cmds=cmds)
+            except CmdException as e:
+                if not debug:
+                    logger.error("App {0} could not be created - Rolling back".format(self.name))
+                    self.remove(path_scripts, path_venvs, path_templates)
+                    return
+                else:
+                    raise e
 
-        map_replac_eps = [[
-                ('#path_venv#', path_venv),
-                ('#directory#', self.directory),
-                ('#entry_point#', ep['script']),
-            ] for ep in self.entry_points]
+            map_replac_eps = [[
+                    ('#path_venv#', path_venv),
+                    ('#directory#', self.directory),
+                    ('#entry_point#', ep['script']),
+                ] for ep in self.entry_points]
 
-        for k, replacement in enumerate(map_replac_eps):
-            generate_custom_batch(
-                source=r'{0}\template_launcher_local.txt'.format(path_templates),
-                destination=r'{0}\{1}.bat'.format(path_scripts, self.entry_points[k]['name']),
-                replacements=replacement,
-            )
+            for k, replacement in enumerate(map_replac_eps):
+                generate_custom_batch(
+                    source=r'{0}\template_launcher_local.txt'.format(path_templates),
+                    destination=r'{0}\{1}.bat'.format(path_scripts, self.entry_points[k]['name']),
+                    replacements=replacement,
+                )
         self.is_installed = True
         logger.info("App creation for {0}: Completed!".format(self.name))
 
@@ -72,16 +71,17 @@ class AppLocal(AppGeneric):
         :param name: Name of the application
         """
         logger.info("App deletion for {0}: Starting...".format(self.name))
+        # Removes virtual environment
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
-        if not os.path.exists(r'{0}\pyvenv.cfg'.format(path_venv)) or not os.path.exists(r'{0}\Scripts\activate'.format(path_venv)):
-            raise Exception("Error - The folder about to be deleted is not a virtual environment")
-        else:
-            shutil.rmtree(path_venv)
-
-
+        if os.path.exists(path_venv):
+            if not os.path.exists(r'{0}\pyvenv.cfg'.format(path_venv)) or not os.path.exists(r'{0}\Scripts\activate'.format(path_venv)):
+                raise Exception("Error - The folder about to be deleted is not a virtual environment")
+            else:
+                shutil.rmtree(path_venv)
+        # Removes entry points
         for ep in self.entry_points:
             if os.path.exists(r"{0}\{1}.bat".format(path_scripts, ep['name'])):
                 os.remove(r"{0}\{1}.bat".format(path_scripts, ep['name']))
 
-        logger.info("App creation for {0}: Completed!".format(self.name))
+        logger.info("App deletion for {0}: Completed!".format(self.name))
         self.is_installed = False

@@ -31,14 +31,11 @@ class AppManager(object):
             True: 'Installed (@ {venv})',
             False: 'Not installed',
         }
-        import pdb;pdb.set_trace()
         content = ['App {app_name} (type {type_app}) - Status: {status}'.format(
             app_name=app.name,
             type_app=app.__class__.identifier,
             status=display_install[app.is_installed].format(venv=app.venv_name))
             for app in self.apps]
-        import pdb;pdb.set_trace()
-
         return '\n'.join(content)
 
     @classmethod
@@ -71,7 +68,6 @@ class AppManager(object):
 
     def create(self, app: str, **kwargs):
         _app = self._find_app(app)
-        venv_match = [app for app in self.apps if app.venv_name == _app.venv_name and app.is_installed]
         _app.create(
             path_scripts=self.path_scripts,
             path_venvs=self.path_envs,

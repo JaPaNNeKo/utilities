@@ -42,14 +42,14 @@ def run(cmd: str, **kwargs):
     This function gives access to the underlying runner for any command on the AppManager, in case finer control
     / more agnostic code is needed instead of the simpler functions of the module (create, remove, update)
     """
-    apps = kwargs.pop("app", None)
+    apps = kwargs.pop("apps", None)
     debug = kwargs.get("debug")
     if debug:
         logger.setLevel("DEBUG")
     else:
         logger.setLevel("INFO")
     mger = AppManager.from_root(r'{0}\Yggdrasil'.format(PATH_YGGDRASIL))
-    if apps is None:
+    if apps == '*':
         apps = [app.name for app in mger.apps]
     elif isinstance(apps, str):
         apps = [apps]
@@ -57,7 +57,7 @@ def run(cmd: str, **kwargs):
         mger.functions[cmd](name_app, **kwargs)
 
 
-def create(apps=None, debug=False, force_regen=False):
+def create(apps, debug=False, force_regen=False):
     """
     Creates an application
     :param apps: Name of the application (as per settings file)
@@ -69,7 +69,7 @@ def create(apps=None, debug=False, force_regen=False):
     run("create", apps=apps, debug=debug, force_regen=force_regen)
 
 
-def remove(apps=None, debug=False):
+def remove(apps, debug=False):
     """
     Removes an application
     :param apps: Name of the application (as per settings file)

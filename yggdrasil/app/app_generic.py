@@ -4,9 +4,9 @@ from yggdrasil.app.utilities import logger, run_cmds
 from typing import overload
 from abc import ABC, abstractmethod, abstractclassmethod
 
-# TODO Write __repr__ & __str__ for all classes
-# TODO Enforce some class attributes to be implemented in subclasses
-
+# todo Write __repr__ & __str__ for all classes
+# todo Enforce some class attributes to be implemented in subclasses
+# todo add decorators for logging on app_web & app_local
 
 class AppGeneric(object):
     identifier = None
@@ -34,8 +34,6 @@ class AppGeneric(object):
     def load_settings(self, root) -> []:
         raise Exception("Should be implemented by each ")
 
-    def check(self):
-        pass
 
 
 class Apps(object):
