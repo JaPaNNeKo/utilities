@@ -2,9 +2,10 @@ import os
 import warnings
 from yggdrasil.app_manager import AppManager, PATH_YGGDRASIL, PATH_INTERNAL
 from yggdrasil.logger import logger
+import shutil
 
 
-def plant_seed():
+def seed():
     """
     Generates yggdrasil base folder template.
     If a path is defined in YGGDRASIL_ROOT environment variable, it will be created under the given path.
@@ -14,7 +15,7 @@ def plant_seed():
     - venvs folder: Store virtual environments for each app
     - settings: Store congiguration file for app creation
     - scripts: Store batch files for each app
-    At runtime, this function will also create a settings.txt template (under settings folder) and a
+    At runtime, this function will also create a settings.yaml template (under settings folder) and a
     ls_tools.bat file (under scripts folder), listing the app installed under yggdrasil
     """
     path_root = '{0}\Yggdrasil'.format(PATH_YGGDRASIL)
@@ -22,14 +23,14 @@ def plant_seed():
     os.mkdir(r'{0}\venvs'.format(path_root))
     os.mkdir(r'{0}\scripts'.format(path_root))
     os.mkdir(r'{0}\settings'.format(path_root))
-    os.mkdir(r'{0}\tools'.format(path_root))
-
-    with open(r'{0}\data\ls_tools.txt'.format(PATH_INTERNAL)) as f:
-        batch_ls = f.readlines()
-    with open(r'{0}\scripts\ls_tools.bat'.format(path_root), 'w+') as f:
-        f.write("".join(batch_ls))
-    with open(r'{0}\settings\settings.txt'.format(path_root), 'w+') as f:
-        f.write('name\tpy_version\tvenv\tdirectory\tentry_point')
+    shutil.copy(
+        r'{0}\data\ls_tools.txt'.format(PATH_INTERNAL),
+        r'{0}\scripts\ls_tools.bat'.format(path_root)
+    )
+    shutil.copy(
+        r'{0}\data\template_settings.yaml'.format(PATH_INTERNAL),
+        r'{0}\settings\settings.yaml'.format(path_root)
+    )
     if r"{0}\scripts".format(path_root) not in os.environ['Path'].split(";"):
         warnings.warn(r"Please add {0}\scripts to your Path variable for easier access to utilities".format(path_root))
 

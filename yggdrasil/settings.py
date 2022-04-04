@@ -5,9 +5,8 @@ from yggdrasil.exceptions import SettingsException
 
 
 class Settings(object):
-    def __init__(self, author: str, date, base_types: [], config_apps:[]):
-        self.author = author
-        self.date = date
+    def __init__(self, meta: {}, base_types: [], config_apps:[]):
+        self.meta = meta
         self.base_types = base_types
         self.config_apps = config_apps
 
@@ -60,8 +59,7 @@ class Settings(object):
         if safe:
             cls._check_compatibility(file_yaml=settings)
         return Settings(
-            author=settings['author'],
-            date=settings['date'],
+            meta=settings['meta'],
             base_types=settings['base_types'],
             config_apps=settings['configurations'],
         )

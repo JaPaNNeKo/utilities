@@ -13,8 +13,9 @@ def _unique_match(ls):
 
 def run_cmds(cmds:[]):
     for cmd in cmds:
+        logger.debug("running command: {0}".format(cmd))
         output = subprocess.run(cmd, shell=True, check=False, capture_output=True)
-        logger.debug("command output:{0}".format(output.stdout.decode("utf-8")))
+        logger.debug("command output: {0}".format(output.stdout.decode("utf-8")))
         logger.debug("return code: {0}".format(output.returncode))
         if output.returncode != 0:
             raise CmdException(output.stderr.decode("utf-8"))
