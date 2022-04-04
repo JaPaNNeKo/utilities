@@ -49,7 +49,7 @@ def run(cmd: str, **kwargs):
         logger.setLevel("DEBUG")
     else:
         logger.setLevel("INFO")
-    mger = AppManager.from_root(r'{0}\Yggdrasil'.format(PATH_YGGDRASIL))
+    mger = AppManager.from_default()
     if apps == '*':
         apps = [app.name for app in mger.apps]
     elif isinstance(apps, str):
@@ -78,3 +78,8 @@ def remove(apps, debug=False):
     False by default
     """
     run("remove", apps=apps, debug=debug)
+
+
+def show():
+    mger = AppManager.from_default()
+    print(mger.show_apps())

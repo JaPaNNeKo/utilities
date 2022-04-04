@@ -2,7 +2,7 @@ import os
 from yggdrasil.drivers import ListApps
 from yggdrasil.utilities.settings import Settings
 
-# todo any way to nicely marry __subclass__ & code completion?
+# todo (mt) any way to nicely marry __subclass__ & code completion?
 PATH_YGGDRASIL = '{0}\Yggdrasil'.format(os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents')))
 PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
@@ -22,7 +22,7 @@ class AppManager(object):
 
     @classmethod
     def _get_status(cls, root, app: str):
-        # todo find better way (e.g. keeping an internal log of installed tools?)
+        # todo (mt) find better way (e.g. keeping an internal log of installed tools?)
         return os.path.exists(r'{0}\venvs\venv_{1}'.format(root, app))
 
     def show_apps(self):

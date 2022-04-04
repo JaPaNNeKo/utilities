@@ -15,5 +15,4 @@ setup(
   ],
   include_package_data=True,
   package_data={'yggdrasil': ['data/*.txt']},
-  # entry_points={'console_scripts': ["gen_dist_info=yggdrasil.informer.main:dump_internal_info_venv"]}
 )

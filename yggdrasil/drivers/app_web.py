@@ -23,7 +23,7 @@ class AppWeb(AppGeneric):
         self.version_py = kwargs.pop('py_version', None)
         self.repo_name = self.url_project.split("/")[-1].split(".")[0]
 
-    # todo modularise
+    # todo (mt) modularise
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         logger.info("App creation for {0}: Starting...".format(self.name))
         force_regen = kwargs.pop('force_regen', False)
@@ -42,8 +42,8 @@ class AppWeb(AppGeneric):
                     cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
 
                 # Install base project & distribution meta extractor
-                # TODO Parametrise bypassing SSL security
                 ignore_ssl = "--trusted-host pypi.org --trusted-host files.pythonhosted.org"
+                # todo (mt) Parametrise bypassing SSL security
                 cmds.append(r'{0}\Scripts\activate && pip install {2} {1} && deactivate'.format(
                     path_venv,
                     self.url_project,
@@ -61,8 +61,6 @@ class AppWeb(AppGeneric):
                 cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, self.repo_name))
                 cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, "dist_meta"))
                 run_cmds(cmds)
-                # TODO will leave some trash, clean up dependencies too
-                # TODO keep if debug mode, delete otherwise
                 info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
 
                 if not debug:
@@ -100,7 +98,6 @@ class AppWeb(AppGeneric):
         logger.info("App creation for {0}: Completed!".format(self.name))
 
     def remove(self, path_scripts:str, path_venvs: str, **kwargs):
-        # todo update docstring
         """
         Deletes an application
         :param name: Name of the application
