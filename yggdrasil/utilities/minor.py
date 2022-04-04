@@ -1,10 +1,10 @@
 import subprocess
-from yggdrasil.logger import logger
+from yggdrasil.utilities.logger import logger
 
 
-def _unique_match(ls):
+def unique_match(ls):
     if len(ls) == 0:
-        raise Exception("Problem: Unrecognised app type")
+        raise Exception("Problem: Unrecognised drivers type")
     if len(ls) > 1:
         raise Exception("Problem: Several apps match this type")
     return ls[0]

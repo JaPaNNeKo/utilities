@@ -1,6 +1,6 @@
-from yggdrasil.app.app_generic import AppGeneric
-from yggdrasil.app.utilities import run_cmds, generate_custom_batch
-from yggdrasil.logger import logger
+from yggdrasil.drivers.app_generic import AppGeneric
+from yggdrasil.utilities import run_cmds, generate_custom_batch
+from yggdrasil.utilities.logger import logger
 import os
 from ygg_helpers.main import DistInfo
 import shutil
@@ -18,7 +18,6 @@ class AppWeb(AppGeneric):
 
     def __init__(self,  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = kwargs.pop("name")
         self.venv_name = 'venv_{0}'.format(self.name)
         self.url_project = kwargs.pop("url")
         self.version_py = kwargs.pop('py_version', None)

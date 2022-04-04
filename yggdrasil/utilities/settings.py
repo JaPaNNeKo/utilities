@@ -1,6 +1,5 @@
 import yaml
-from yggdrasil.app.utilities import _unique_match
-from yggdrasil import app
+from yggdrasil import drivers
 
 
 class SettingsException(Exception):
@@ -17,7 +16,7 @@ class Settings(object):
 
     @classmethod
     def _check_compatibility(cls, file_yaml):
-        classes_apps = app.AppGeneric.__subclasses__()
+        classes_apps = drivers.AppGeneric.__subclasses__()
         # Checks that there's a single unique match for all base_types
         for info_driver in file_yaml['base_types']:
             AppsMatching = [App for App in classes_apps if info_driver['type'] == App.identifier]
@@ -25,8 +24,8 @@ class Settings(object):
                 raise SettingsException(
                     "Settings base type '{0}' does not match any internal App class".format(info_driver['type']))
             if len(AppsMatching) > 1:
-                raise SettingsException("Several app classes match type '{0}'".format(info_driver['type']))
-        # Checks that no two app configurations have the same name
+                raise SettingsException("Several drivers classes match type '{0}'".format(info_driver['type']))
+        # Checks that no two drivers configurations have the same name
         all_names = [config['name'] for config in file_yaml['configurations']]
         if len(set(all_names)) != len(all_names):
             raise SettingsException("Several configurations bear the same 'name' attribute")

@@ -8,7 +8,7 @@ setup(
   description='Apps handler for in-house python scripts',
   author='mx',
   url='https://github.com/mx-personal/yggdrasil',
-  keywords=['yggdrasil', 'app', 'virtual', 'environment'],
+  keywords=['yggdrasil', 'drivers', 'virtual', 'environment'],
   install_requires=[
     'pyyaml',
     'importlib_metadata',

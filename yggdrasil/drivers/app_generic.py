@@ -1,12 +1,6 @@
-import os
-from collections import namedtuple
-from yggdrasil.app.utilities import logger, run_cmds
-from typing import overload
-from abc import ABC, abstractmethod, abstractclassmethod
+# todo (mt) Enforce some class attributes to be implemented in subclasses
+# todo (mt) add decorators for logging on app_web & app_local
 
-# todo Write __repr__ & __str__ for all classes
-# todo Enforce some class attributes to be implemented in subclasses
-# todo add decorators for logging on app_web & app_local
 
 class AppGeneric(object):
     identifier = None
@@ -14,6 +8,7 @@ class AppGeneric(object):
     parameters = None
 
     def __init__(self, *args, **kwargs):
+        self.name = kwargs.pop ("name")
         self.is_installed = kwargs.pop("is_installed")
 
     @classmethod
@@ -34,9 +29,18 @@ class AppGeneric(object):
     def load_settings(self, root) -> []:
         raise Exception("Should be implemented by each ")
 
+    def __repr__(self):
+        mapping_installed = {
+            True: "installed",
+            False: "not installed",
+        }
+        return 'app {0} ({1}, {2})'.format(self.name,self.__class__.__name__, mapping_installed[self.is_installed])
+
+    def __str__(self):
+        return 'App {0}'.format(self.name)
 
 
-class Apps(object):
+class ListApps(object):
     def __init__(self):
         self.classes_apps = AppGeneric.__subclasses__()
 
@@ -47,3 +51,4 @@ class Apps(object):
                 if getattr(class_app, att) != val:
                     condition_out = False
             if condition_out: return class_app
+

@@ -1,10 +1,9 @@
 import os
-from yggdrasil.logger import logger
-import yggdrasil.app
-from yggdrasil.settings import Settings
+from yggdrasil.drivers import ListApps
+from yggdrasil.utilities.settings import Settings
 
 # todo any way to nicely marry __subclass__ & code completion?
-PATH_YGGDRASIL = os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents'))
+PATH_YGGDRASIL = '{0}\Yggdrasil'.format(os.environ.get("YGGDRASIL_ROOT", os.path.expanduser('~\Documents')))
 PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
 
@@ -42,7 +41,7 @@ class AppManager(object):
     def from_root(cls, root: str):
         settings = Settings.from_yaml(r"{0}\settings\settings.yaml".format(root), safe=True)
         apps = []
-        class_apps = yggdrasil.app.Apps()
+        class_apps = ListApps()
         for info_app in settings.base_types:
             class_app = class_apps.select(identifier=info_app['type'])
             class_app.set_class_constants(**info_app)
@@ -50,6 +49,10 @@ class AppManager(object):
                 is_installed = cls._get_status(root, config['name'])
                 apps.append(class_app(is_installed=is_installed, **config))
         return AppManager(apps=apps, root=root)
+
+    @classmethod
+    def from_default(cls):
+        return cls.from_root(PATH_YGGDRASIL)
 
     @classmethod
     def seed_configs(cls, root):
@@ -61,7 +64,7 @@ class AppManager(object):
     def _find_app(self, name):
         apps_match = [app for app in self.apps if app.name == name]
         if len(apps_match) == 0:
-            raise Exception("App not found - Please check app name called")
+            raise Exception("App not found - Please check drivers name called")
         if len(apps_match) > 1:
             raise Exception("Several apps with this name - Please update base configuration")
         return apps_match[0]

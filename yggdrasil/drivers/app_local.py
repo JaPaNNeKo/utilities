@@ -1,6 +1,6 @@
-from yggdrasil.app.app_generic import AppGeneric
-from yggdrasil.app.utilities import run_cmds, CmdException, generate_custom_batch
-from yggdrasil.logger import logger
+from yggdrasil.drivers.app_generic import AppGeneric
+from yggdrasil.utilities import run_cmds, CmdException, generate_custom_batch
+from yggdrasil.utilities.logger import logger
 import os
 import shutil
 
@@ -10,7 +10,6 @@ class AppLocal(AppGeneric):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.name = kwargs.pop("name")
         self.venv_name = r'venv_{0}'.format(self.name)
         self.directory = kwargs.pop("directory")
         self.entry_points = kwargs.pop("entry_points")
@@ -19,7 +18,7 @@ class AppLocal(AppGeneric):
     def create(self, path_scripts:str, path_venvs: str, path_templates: str, **kwargs):
         """
         Creates an application.
-        :param force_regen: Default is False. If True, app will be entirely removed before being re-created
+        :param force_regen: Default is False. If True, drivers will be entirely removed before being re-created
         :param debug: Default is False. If False, crashing on cmds execution will skip the rest of the creation
         If True, then it will raise a CmdError.
         """
