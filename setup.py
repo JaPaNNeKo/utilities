@@ -1,14 +1,18 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
+
 setup(
   name='yggdrasil',
-  packages=['yggdrasil'],
+  packages=find_packages(),
   version='2.0',
   license='MIT',
   description='Apps handler for in-house python scripts',
   author='mx',
   url='https://github.com/mx-personal/yggdrasil',
-  keywords=['yggdrasil', 'app', 'virtual', 'environment'],
-  install_requires=['virtualenvwrapper-win'],
+  keywords=['yggdrasil', 'drivers', 'virtual', 'environment'],
+  install_requires=[
+    'pyyaml',
+    'dist_meta@git+https://github.com/mx-personal/dist_meta.git'
+  ],
   include_package_data=True,
-  package_data={'yggdrasil': ['data/*.txt']},
+  package_data={'yggdrasil': ['data/*.txt', 'data/*.yaml']},
 )

@@ -1,0 +1,42 @@
+# Settings file for yggdrasil
+
+# Meta information (no impact on the tool's workings, for internal tracing only)
+meta:
+    author: ???
+    date: ???
+    base: ???
+
+# Key information per driver / drivers type
+base_types:
+    -   type: web
+        url_helpers: ???
+        atts_required:
+            -   name
+            -   type
+            -   url
+        atts_optional:
+            -   py_version
+    -   type: local
+        atts_required:
+            -   name
+            -   type
+            -   directory
+            -   entry_points
+        atts_optional:
+            -   py_version
+
+# Key configuration information per drivers
+configurations:
+    -   name: ???
+        type: ???
+        py_version: ???
+        directory: ???
+        entry_points:
+            -   name: ???
+                script: ???
+            -   name: ???
+                script: ???
+    -   name: ???
+        type: ???
+        py_version: ???
+        url: ???
