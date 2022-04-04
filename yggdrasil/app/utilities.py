@@ -1,6 +1,5 @@
 import subprocess
 from yggdrasil.logger import logger
-from yggdrasil.exceptions import CmdException
 
 
 def _unique_match(ls):
@@ -9,6 +8,12 @@ def _unique_match(ls):
     if len(ls) > 1:
         raise Exception("Problem: Several apps match this type")
     return ls[0]
+
+
+class CmdException(Exception):
+    def __init__(self, error: str):
+        self.message = 'Aborting, error in commands communicated:\n{0}'.format(error)
+        super().__init__(self.message)
 
 
 def run_cmds(cmds:[]):

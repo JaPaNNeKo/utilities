@@ -1,7 +1,12 @@
 import yaml
 from yggdrasil.app.utilities import _unique_match
 from yggdrasil import app
-from yggdrasil.exceptions import SettingsException
+
+
+class SettingsException(Exception):
+    def __init__(self, error: str):
+        self.message = 'Cannot parse settings file:\n{0}'.format(error)
+        super().__init__(self.message)
 
 
 class Settings(object):
@@ -27,6 +32,8 @@ class Settings(object):
             raise SettingsException("Several configurations bear the same 'name' attribute")
         # Checks that each configuration relates to a single base type & implements attributes accordingly
         for config in file_yaml['configurations']:
+            if 'type' not in config:
+                raise SettingsException("No type attributed for configuration {0}".format(config['name']))
             types_matching = [base_type for base_type in file_yaml['base_types'] if base_type['type'] == config['type']]
             if len(types_matching) == 0:
                 raise SettingsException(

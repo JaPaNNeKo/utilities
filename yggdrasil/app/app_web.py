@@ -21,7 +21,7 @@ class AppWeb(AppGeneric):
         self.name = kwargs.pop("name")
         self.venv_name = 'venv_{0}'.format(self.name)
         self.url_project = kwargs.pop("url")
-        self.version_py = kwargs.pop('py_version')
+        self.version_py = kwargs.pop('py_version', None)
         self.repo_name = self.url_project.split("/")[-1].split(".")[0]
 
     # todo modularise
@@ -37,7 +37,7 @@ class AppWeb(AppGeneric):
             try:
                 # Generate virtual environment
                 cmds = []
-                if self.version_py == '':
+                if not self.version_py:
                     cmds.append(r'py -m venv {0}'.format(path_venv))
                 else:
                     cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
@@ -65,9 +65,12 @@ class AppWeb(AppGeneric):
                 # TODO will leave some trash, clean up dependencies too
                 # TODO keep if debug mode, delete otherwise
                 info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
-                info_ygg_help = DistInfo.from_yaml(r'{0}\ygginfo-dist_meta.yaml'.format(path_venv))
-                cmds = [r"{0}\Scripts\activate && pip uninstall -y dist_meta".format(path_venv)]
-                run_cmds(cmds)
+
+                if not debug:
+                    cmds = [r"{0}\Scripts\activate && pip uninstall -y dist_meta".format(path_venv)]
+                    run_cmds(cmds)
+                    if os.path.exists(r"{0}\ygginfo-{1}.yaml".format(path_venv, "dist_meta")):
+                        os.remove(r"{0}\ygginfo-{1}.yaml".format(path_venv, "dist_meta"))
 
                 # Installs requirements
                 cmds = [r"{0}\Scripts\activate && pip install {2} -r {1}".format(
@@ -85,8 +88,7 @@ class AppWeb(AppGeneric):
                         destination=r'{0}\{1}.bat'.format(path_scripts, info_repo.entry_points[k].name),
                         replacements=mapping,
                     )
-                self.is_installed = True
-                logger.info("App creation for {0}: Completed!".format(self.name))
+
             except Exception as e:
                 if not debug:
                     logger.error("App {0} could not be created - Rolling back".format(self.name))
@@ -94,6 +96,9 @@ class AppWeb(AppGeneric):
                     return
                 else:
                     raise e
+
+        self.is_installed = True
+        logger.info("App creation for {0}: Completed!".format(self.name))
 
     def remove(self, path_scripts:str, path_venvs: str, **kwargs):
         # todo update docstring
@@ -107,7 +112,7 @@ class AppWeb(AppGeneric):
         if os.path.exists(path_venv):
             info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
             for ep in info_repo.entry_points:
-                os.remove('{0}\{1}.bat'.format(path_scripts,ep.name))
+                os.remove('{0}\{1}.bat'.format(path_scripts, ep.name))
 
         # Removes virtual environment
         if os.path.exists(path_venv):
