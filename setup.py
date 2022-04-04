@@ -11,6 +11,7 @@ setup(
   keywords=['yggdrasil', 'drivers', 'virtual', 'environment'],
   install_requires=[
     'pyyaml',
+    'dist_meta@git+https://github.com/mx-personal/dist_meta.git'
   ],
   include_package_data=True,
   package_data={'yggdrasil': ['data/*.txt', 'data/*.yaml']},

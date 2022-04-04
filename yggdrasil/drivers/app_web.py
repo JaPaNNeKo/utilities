@@ -2,7 +2,7 @@ from yggdrasil.drivers.app_generic import AppGeneric
 from yggdrasil.utilities import run_cmds, generate_custom_batch
 from yggdrasil.utilities.logger import logger
 import os
-from ygg_helpers.main import DistInfo
+from dist_meta import DistInfo
 import shutil
 
 _url_helpers = None
