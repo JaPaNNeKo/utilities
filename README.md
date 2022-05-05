@@ -21,7 +21,7 @@ pip install git+https://www.github.com/mx-personal/yggdrasil.git
 Then, create the base folder structure to install yggdrasil into:
 ```python
 import yggdrasil as ygg
-ygg.plant_seed()
+ygg.seed()
 ```
 If a path is set up as environment variable (*YGGDRASIL_ROOT*), the folders structure will be created there.
 If not, it will be created under the user's *Documents* folder.
