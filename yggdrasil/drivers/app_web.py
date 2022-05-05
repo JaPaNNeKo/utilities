@@ -1,5 +1,5 @@
 from yggdrasil.drivers.app_generic import AppGeneric
-from yggdrasil.utilities import run_cmds, generate_custom_batch
+from yggdrasil.utilities import run_cmds, generate_custom_batch, CmdException
 from yggdrasil.utilities.logger import logger
 import os
 from dist_meta import DistInfo
@@ -106,9 +106,12 @@ class AppWeb(AppGeneric):
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
         # Removes entry points
         if os.path.exists(path_venv):
-            info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
-            for ep in info_repo.entry_points:
-                os.remove('{0}\{1}.bat'.format(path_scripts, ep.name))
+            try:
+                info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
+                for ep in info_repo.entry_points:
+                    os.remove('{0}\{1}.bat'.format(path_scripts, ep.name))
+            except FileNotFoundError as e:
+                logger.warn("No distribution information file found - Hence no entry point will be removed")
 
         # Removes virtual environment
         if os.path.exists(path_venv):
@@ -118,3 +121,4 @@ class AppWeb(AppGeneric):
                 shutil.rmtree(path_venv)
         self.is_installed = False
         logger.info("App deletion for {0}: Completed!".format(self.name))
+
