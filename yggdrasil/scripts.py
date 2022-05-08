@@ -3,6 +3,7 @@ import warnings
 from yggdrasil.app_manager import AppManager, PATH_YGGDRASIL, PATH_INTERNAL
 from yggdrasil.utilities.logger import logger
 import shutil
+import argparse
 
 
 def seed():
@@ -54,8 +55,7 @@ def run(cmd: str, **kwargs):
         apps = [app.name for app in mger.apps]
     elif isinstance(apps, str):
         apps = [apps]
-    for name_app in apps:
-        mger.functions[cmd](name_app, **kwargs)
+    mger.functions[cmd](apps, **kwargs)
 
 
 def create(apps, debug=False, force_regen=False):
@@ -80,7 +80,28 @@ def remove(apps, debug=False):
     run("remove", apps=apps, debug=debug)
 
 
-def show():
-    run("show", apps='*')
-    # mger = AppManager.from_default()
-    # print(mger.show_apps())
+def show(apps):
+    run("show", apps=apps)
+
+
+def cmd_ygg():
+    parser = argparse.ArgumentParser(prog="yggdrasil")
+    subparsers = parser.add_subparsers(dest="cmd", required=True)
+
+    # Create function subparser
+    parser_create = subparsers.add_parser("create", help="Create an application")
+    parser_create.add_argument("-d", "--debug", action="store_true", help="Show debug log during execution")
+    parser_create.add_argument("-f", "--force-regen", action="store_true", dest="force_regen", help="Forces regeneration of the app if already exists")
+    parser_create.add_argument("apps", nargs='*', default='*', help="List of apps to create (all if not specified)")
+
+    # Remove function subparser
+    parser_remove = subparsers.add_parser("remove", help="Create an application")
+    parser_remove.add_argument("-d", "--debug", action="store_true", help="Show debug log during execution")
+    parser_remove.add_argument("apps", nargs='*', default='*', help="List of apps to remove (all if not specified)")
+
+    # Show function subparser
+    parser_show = subparsers.add_parser("show", help="Show list of existing applications")
+    parser_show.add_argument("apps", default='*', nargs='*')
+
+    args = parser.parse_args()
+    run(**vars(args))
