@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
   name='yggdrasil',
   packages=find_packages(),
-  version='2.0.0-alpha.3',
+  version='2.0.0-alpha.4',
   license='MIT',
   description='Apps handler for in-house python scripts',
   author='mx',
@@ -11,8 +11,11 @@ setup(
   keywords=['yggdrasil', 'drivers', 'virtual', 'environment'],
   install_requires=[
     'pyyaml',
-    'dist_meta@git+https://github.com/mx-personal/dist_meta.git'
+    'dist_meta@git+https://github.com/mx-personal/dist_meta.git' #TODO Version the package
   ],
+  entry_points={
+    'console_scripts':['yggdrasil=yggdrasil.scripts:cmd_ygg']
+  },
   include_package_data=True,
   package_data={'yggdrasil': ['data/*.txt', 'data/*.yaml']},
 )

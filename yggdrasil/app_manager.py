@@ -18,6 +18,7 @@ class AppManager(object):
         self.functions = {
             "create": self.create,
             "remove": self.remove,
+            "show": self.show,
         }
 
     @classmethod
@@ -25,7 +26,8 @@ class AppManager(object):
         # todo (mt) find better way (e.g. keeping an internal log of installed tools?)
         return os.path.exists(r'{0}\venvs\venv_{1}'.format(root, app))
 
-    def show_apps(self):
+    def show(self, apps: []):
+        _apps = [self._find_app(app) for app in apps]
         display_install = {
             True: 'Installed (@ {venv})',
             False: 'Not installed',
@@ -34,8 +36,8 @@ class AppManager(object):
             app_name=app.name,
             type_app=app.__class__.identifier,
             status=display_install[app.is_installed].format(venv=app.venv_name))
-            for app in self.apps]
-        return '\n'.join(content)
+            for app in _apps]
+        print('\n'.join(content))
 
     @classmethod
     def from_root(cls, root: str):
@@ -69,20 +71,22 @@ class AppManager(object):
             raise Exception("Several apps with this name - Please update base configuration")
         return apps_match[0]
 
-    def create(self, app: str, **kwargs):
-        _app = self._find_app(app)
-        _app.create(
-            path_scripts=self.path_scripts,
-            path_venvs=self.path_envs,
-            path_templates=self.path_template_scripts,
-            **kwargs
-        )
+    def create(self, apps: [], **kwargs):
+        for app in apps:
+            _app = self._find_app(app)
+            _app.create(
+                path_scripts=self.path_scripts,
+                path_venvs=self.path_envs,
+                path_templates=self.path_template_scripts,
+                **kwargs
+            )
 
-    def remove(self, app: str, **kwargs):
-        _app = self._find_app(app)
-        _app.remove(
-            path_scripts=self.path_scripts,
-            path_venvs=self.path_envs,
-            path_templates=self.path_template_scripts,
-            **kwargs
-        )
+    def remove(self, apps: [], **kwargs):
+        for app in apps:
+            _app = self._find_app(app)
+            _app.remove(
+                path_scripts=self.path_scripts,
+                path_venvs=self.path_envs,
+                path_templates=self.path_template_scripts,
+                **kwargs
+            )
