@@ -81,5 +81,6 @@ def remove(apps, debug=False):
 
 
 def show():
-    mger = AppManager.from_default()
-    print(mger.show_apps())
+    run("show", apps='*')
+    # mger = AppManager.from_default()
+    # print(mger.show_apps())

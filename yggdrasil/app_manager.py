@@ -18,6 +18,7 @@ class AppManager(object):
         self.functions = {
             "create": self.create,
             "remove": self.remove,
+            "show": self.show_apps,
         }
 
     @classmethod
