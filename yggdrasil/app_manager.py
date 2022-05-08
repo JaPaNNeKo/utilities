@@ -1,4 +1,5 @@
 import os
+
 from yggdrasil.drivers import ListApps
 from yggdrasil.utilities.settings import Settings
 
@@ -8,6 +9,12 @@ PATH_INTERNAL = os.path.join(os.path.dirname(__file__))
 
 
 class AppManager(object):
+    """
+    Manager for generic Application. Serves as storage for yggdrasil root variables & triggers app-level methods
+    Attributes:
+        apps: List of AppGeneric objects
+        root: Path to root folder of yggdrasil
+    """
     def __init__(self, apps: [], root: str):
         self.path_root = root
         self.path_settings = r'{0}\settings'.format(self.path_root)
@@ -26,19 +33,6 @@ class AppManager(object):
         # todo (mt) find better way (e.g. keeping an internal log of installed tools?)
         return os.path.exists(r'{0}\venvs\venv_{1}'.format(root, app))
 
-    def show(self, apps: []):
-        _apps = [self._find_app(app) for app in apps]
-        display_install = {
-            True: 'Installed (@ {venv})',
-            False: 'Not installed',
-        }
-        content = ['App {app_name} (type {type_app}) - Status: {status}'.format(
-            app_name=app.name,
-            type_app=app.__class__.identifier,
-            status=display_install[app.is_installed].format(venv=app.venv_name))
-            for app in _apps]
-        print('\n'.join(content))
-
     @classmethod
     def from_root(cls, root: str):
         settings = Settings.from_yaml(r"{0}\settings\settings.yaml".format(root), safe=True)
@@ -55,13 +49,6 @@ class AppManager(object):
     @classmethod
     def from_default(cls):
         return cls.from_root(PATH_YGGDRASIL)
-
-    @classmethod
-    def seed_configs(cls, root):
-        with open(r'{0}\data\template_settings.yaml'.format(PATH_INTERNAL)) as f:
-            batch_ls = f.readlines()
-        with open(r'{0}\settings\settings.yaml'.format(root), 'w+') as f:
-            f.write("".join(batch_ls))
 
     def _find_app(self, name):
         apps_match = [app for app in self.apps if app.name == name]
@@ -90,3 +77,16 @@ class AppManager(object):
                 path_templates=self.path_template_scripts,
                 **kwargs
             )
+
+    def show(self, apps: []):
+        _apps = [self._find_app(app) for app in apps]
+        display_install = {
+            True: 'Installed (@ {venv})',
+            False: 'Not installed',
+        }
+        content = ['App {app_name} (type {type_app}) - Status: {status}'.format(
+            app_name=app.name,
+            type_app=app.__class__.identifier,
+            status=display_install[app.is_installed].format(venv=app.venv_name))
+            for app in _apps]
+        print('\n'.join(content))

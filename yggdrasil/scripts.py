@@ -1,9 +1,10 @@
 import os
 import warnings
-from yggdrasil.app_manager import AppManager, PATH_YGGDRASIL, PATH_INTERNAL
-from yggdrasil.utilities.logger import logger
 import shutil
 import argparse
+
+from yggdrasil.app_manager import AppManager, PATH_YGGDRASIL, PATH_INTERNAL
+from yggdrasil.utilities.logger import logger
 
 
 def seed():
@@ -61,7 +62,8 @@ def run(cmd: str, **kwargs):
 def create(apps, debug=False, force_regen=False):
     """
     Creates an application
-    :param apps: Name of the application (as per settings file)
+    :param apps: Name of the application (as per settings file). Can accept a single app (string), a list of apps ([]),
+    or all apps ("*")
     :param debug: Run in debug mode (True) or standard mode (False), affecting level of logging & drivers creation behaviour.
     False by default
     :param force_regen: Force re-creation of the drivers if it already exists or not. If False & the drivers already exists,
@@ -73,7 +75,8 @@ def create(apps, debug=False, force_regen=False):
 def remove(apps, debug=False):
     """
     Removes an application
-    :param apps: Name of the application (as per settings file)
+    :param apps: Name of the application (as per settings file). Can accept a single app (string), a list of apps ([]),
+    or all apps ("*")
     :param debug: Run in debug mode (True) or standard mode (False), affecting level of logging & drivers creation behaviour.
     False by default
     """
@@ -81,10 +84,18 @@ def remove(apps, debug=False):
 
 
 def show(apps):
+    """
+    Shows the list of applications
+    :param apps: Name of the application (as per settings file). Can accept a single app (string), a list of apps ([]),
+    or all apps ("*")
+    """
     run("show", apps=apps)
 
 
 def cmd_ygg():
+    """
+    Command line interface for yggdrasil.
+    """
     parser = argparse.ArgumentParser(prog="yggdrasil")
     subparsers = parser.add_subparsers(dest="cmd", required=True)
 

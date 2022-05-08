@@ -1,14 +1,28 @@
+import os
+import shutil
+from dist_meta import DistInfo
+
 from yggdrasil.drivers.app_generic import AppGeneric
 from yggdrasil.utilities import run_cmds, generate_custom_batch, CmdException
 from yggdrasil.utilities.logger import logger
-import os
-from dist_meta import DistInfo
-import shutil
+
 
 _url_helpers = None
 
 
 class AppWeb(AppGeneric):
+    """
+    Web-hosted application implementation. Used to create, remove & update applications stored in git-like online repository.
+    To do so, any online git project must:
+        - Define its entry points in the setup.py file (setup(entry_points = ...))
+        - Define its requirements (requirements.txt at the root of the source code)
+    Attributes:
+        name: Name of the app as per the settings file
+        is_installed: Boolean flagging whether the app is already installed within the yggdrasil root folder
+        the batch entry point created by yggdrasil & script is the name of the python/batch script to run within the project
+        folder.
+        version_py: (Optional) Version of python to build the app with (must already be installed on the machine)
+    """
     identifier = 'web'
 
     @classmethod
@@ -25,6 +39,15 @@ class AppWeb(AppGeneric):
 
     # todo (mt) modularise
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
+        """
+        Install the application.
+        :param path_scripts: Path to the folder containing the entry points installed by yggdrasil
+        :param path_venvs: Path to the folder containing the virtual environment of the application
+        :param path_templates: Path to the templates folder, containing template for the creation of the apps's external entry point
+        :param force_regen: Default is False. If True, drivers will be entirely removed before being re-created
+        :param debug: Default is False. If False, crashing on cmds execution will skip the rest of the creation
+        If True, then it will raise a CmdError.
+        """
         logger.info("App creation for {0}: Starting...".format(self.name))
         force_regen = kwargs.pop('force_regen', False)
         debug = kwargs.pop('debug', False)
@@ -99,8 +122,10 @@ class AppWeb(AppGeneric):
 
     def remove(self, path_scripts:str, path_venvs: str, **kwargs):
         """
-        Deletes an application
-        :param name: Name of the application
+        Uninstall the application.
+        Attributes:
+            path_scripts: Path to the folder containing the entry points installed by yggdrasil
+            path_venvs: Path to the folder containing the virtual environment of the application
         """
         logger.info("App deletion for {0}: Starting...".format(self.name))
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
