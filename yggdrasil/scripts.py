@@ -99,6 +99,9 @@ def cmd_ygg():
     parser = argparse.ArgumentParser(prog="yggdrasil")
     subparsers = parser.add_subparsers(dest="cmd", required=True)
 
+    # Seed function subparser
+    parser_seed = subparsers.add_parser("seed", help="Seed template structure for yggdrasil")
+
     # Create function subparser
     parser_create = subparsers.add_parser("create", help="Create an application")
     parser_create.add_argument("-d", "--debug", action="store_true", help="Show debug log during execution")
@@ -115,4 +118,7 @@ def cmd_ygg():
     parser_show.add_argument("apps", default='*', nargs='*')
 
     args = parser.parse_args()
-    run(**vars(args))
+    if vars(args).get("cmd") == "seed":
+        seed()
+    else:
+        run(**vars(args))
