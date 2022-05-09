@@ -1,11 +1,24 @@
-from yggdrasil.drivers.app_generic import AppGeneric
-from yggdrasil.utilities import run_cmds, CmdException, generate_custom_batch
-from yggdrasil.utilities.logger import logger
 import os
 import shutil
 
+from yggdrasil.drivers.app_generic import AppGeneric
+from yggdrasil.utilities import run_cmds, CmdException, generate_custom_batch
+from yggdrasil.utilities.logger import logger
+
 
 class AppLocal(AppGeneric):
+    """
+    Local application implementation. Used to create, remove & update applications stored on the local machine.
+    Attributes:
+        directory: Path to the project directory containing the app source code
+        name: Name of the app as per the settings file
+        is_installed: Boolean flagging whether the app is already installed within the yggdrasil root folder
+        entry_points: Entry points of the project, in the format [{'name':'script'}], where 'name' will be the name of
+        the batch entry point created by yggdrasil & script is the name of the python/batch script to run within the project
+        folder.
+        version_py: (Optional) Version of python to build the app with (must already be installed on the machine)
+    """
+
     identifier = 'local'
 
     def __init__(self, *args, **kwargs):
@@ -17,7 +30,10 @@ class AppLocal(AppGeneric):
 
     def create(self, path_scripts:str, path_venvs: str, path_templates: str, **kwargs):
         """
-        Creates an application.
+        Install the application.
+        :param path_scripts: Path to the folder containing the entry points installed by yggdrasil
+        :param path_venvs: Path to the folder containing the virtual environment of the application
+        :param path_templates: Path to the templates folder, containing template for the creation of the apps's external entry point
         :param force_regen: Default is False. If True, drivers will be entirely removed before being re-created
         :param debug: Default is False. If False, crashing on cmds execution will skip the rest of the creation
         If True, then it will raise a CmdError.
@@ -27,8 +43,8 @@ class AppLocal(AppGeneric):
         debug = kwargs.pop('debug', False)
         if not self.is_installed or force_regen:
             if self.is_installed and force_regen:
-                self.remove(path_scripts, path_venvs, path_templates)
-        # Generate virtual environment
+                self.remove(path_scripts, path_venvs)
+
         if not self.is_installed:
             cmds = []
             path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
@@ -44,7 +60,7 @@ class AppLocal(AppGeneric):
             except CmdException as e:
                 if not debug:
                     logger.error("App {0} could not be created - Rolling back".format(self.name))
-                    self.remove(path_scripts, path_venvs, path_templates)
+                    self.remove(path_scripts, path_venvs)
                     return
                 else:
                     raise e
@@ -64,20 +80,23 @@ class AppLocal(AppGeneric):
         self.is_installed = True
         logger.info("App creation for {0}: Completed!".format(self.name))
 
-    def remove(self, path_scripts:str, path_venvs: str, path_templates: str, **kwargs):
+    def remove(self, path_scripts:str, path_venvs: str, **kwargs):
         """
-        Deletes an application
-        :param name: Name of the application
+        Uninstall the application.
+        :param path_scripts: Path to the folder containing the entry points installed by yggdrasil
+        :param path_venvs: Path to the folder containing the virtual environment of the application
         """
         logger.info("App deletion for {0}: Starting...".format(self.name))
-        # Removes virtual environment
+
+        # Remove virtual environment
         path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
         if os.path.exists(path_venv):
             if not os.path.exists(r'{0}\pyvenv.cfg'.format(path_venv)) or not os.path.exists(r'{0}\Scripts\activate'.format(path_venv)):
                 raise Exception("Error - The folder about to be deleted is not a virtual environment")
             else:
                 shutil.rmtree(path_venv)
-        # Removes entry points
+
+        # Remove entry points
         for ep in self.entry_points:
             if os.path.exists(r"{0}\{1}.bat".format(path_scripts, ep['name'])):
                 os.remove(r"{0}\{1}.bat".format(path_scripts, ep['name']))

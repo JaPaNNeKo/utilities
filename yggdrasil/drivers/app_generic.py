@@ -3,12 +3,15 @@
 
 
 class AppGeneric(object):
+    """
+    Generic application class. Any implementation of an App class should inheritc AppGeneric.
+    """
     identifier = None
     name_settings_file = None
     parameters = None
 
     def __init__(self, *args, **kwargs):
-        self.name = kwargs.pop ("name")
+        self.name = kwargs.pop("name")
         self.is_installed = kwargs.pop("is_installed")
 
     @classmethod

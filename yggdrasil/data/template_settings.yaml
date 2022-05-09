@@ -27,16 +27,16 @@ base_types:
 
 # Key configuration information per drivers
 configurations:
-    -   name: ???
-        type: ???
-        py_version: ???
-        directory: ???
+    -   name: tool_local
+        type: local
+        py_version: 3.8 # Optional (must be installed prior to run)
+        directory: path\to\local\project\directory
         entry_points:
-            -   name: ???
-                script: ???
-            -   name: ???
-                script: ???
-    -   name: ???
-        type: ???
-        py_version: ???
-        url: ???
+            -   name: ep_1 # Name of the entry point as will appear once installed
+                script: script_1.py # Script that will be called by the entry point
+            -   name: ep_2
+                script: script_2.py
+    -   name: tool_web # Optional (must be installed prior to run)
+        type: web
+        py_version: 3.9
+        url: git+https://www.github.com/username/repo.git

@@ -1,14 +1,14 @@
 # Yggdrasil
 ##### Concept
-Yggdrasil is a package meant to facilitate the distribution of scripts into production through the definition of apps.
-Each app is defined as:
-- Name: Name of the application, as will be called from command lined
-- Project directory: Location of the project containing the base code for the app
-- Entry point: .bat or .py file that will be run when calling the app from cmd
-- Virtual environment: environment to activate for running the app
+The yggdrasil library is meant to facilitate the distribution of scripts into production through the definition of apps.
+Conceptually, each app is defined as:
+- Name: Characterises the app to be installed / uninstalled
+- Source code: Source code of the project that must be accessed
+- Entry points: Entry points of the project
+- Virtual environment: environment to run the app within
 
-Once set up, yggdrasil allows the user to run his personal projects from command line, giving a quick way to access all his/her project or to share them.
-
+Through its API, yggdrasil gives your means to seamlessly switch between several virtual environments while having an 
+easy way to call your home-made scripts from the command line.
 
 ##### Getting started
 Before using the tool to create apps, yggdrasil needs an initial set up.
@@ -19,9 +19,8 @@ pip install git+https://www.github.com/mx-personal/yggdrasil.git
 *(The package is not currently available on pipy)*
 
 Then, create the base folder structure to install yggdrasil into:
-```python
-import yggdrasil as ygg
-ygg.seed()
+```shell script
+yggdrasil seed
 ```
 If a path is set up as environment variable (*YGGDRASIL_ROOT*), the folders structure will be created there.
 If not, it will be created under the user's *Documents* folder.
@@ -30,39 +29,40 @@ To make each app easily callable from the command line, it's also recommended to
 
 That's it, you're ready to create your first application!
 
-##### Create an application
-The configuration of an application is done through the *settings.txt* file (under *settings* folder).
-In there, please define the configuration of your app:
-- name: Name that will be called from the command line
-- py_version: Version of python that will be used to run create the virtual environment
-(the version needs to be previously installed and available already)
-- venv: Name of the virtual environment (several apps can share a single virtual environment, which will be identified by name).
-Each project needs to have a *requirements.txt* file stored at its root.
-- directory: Full path to the root directory of the project. The tool doesn't need to be under the *tools* folder to work, however the *tool* folder can be used as
-your base 'in production' tools folder if the user wishes (e.g. if installing tool from github)
-- entry_point: Entry point that will be launched from the command line. The script needs to be under the project directory, in relative path.
-When done, the *settings* file should look like this (on a *spam* application):
+##### Applications requirements
+The definition of apps is done through the settings.yaml file (under Yggdrasil\settings). The library gives the possibility
+to either install apps that are only stored locally (local apps hereafter) or hosted online in a git repository (web apps
+hereafter).
+The settings file is automatically created when running *seed*, already prefilled with dummy examples for local & web setups.
+If in doubt / altered locally, it can also be found under this repository (yggdrasil\data\template_settings.yaml).
+To be able to create an application, the core project will also need to define:
+- A requirements.txt file with the project's dependencies, located at the source of the package / project directory
+- For web-based apps, the project will need to define entry points in the setup.py file
 
-| name         | py_version | venv    | directory               | entry_point       |
-|--------------|------------|---------|-------------------------|-------------------|
-|spam          |3.9         |venv_spam|Path\to\Project\Directory|spam_entry_point.py|
+##### Yggdrasil commands
+Yggdrasil can be called either from shell or from python. From shell:
+```commandline
+yggdrasil seed # Creates a seed for yggdrasil
+yggdrasil create app_name # Installs an app for the given name
+yggdrasil remove app_name # Uninstalls an app for the given name
+yggdrasil show app_name # Show information related to the app name provided
+```
+*(Further parametrisation available, details with -h)*
 
-Once this is done, open python:
+From python:
 ```python
 import yggdrasil as ygg
-ygg.create("spam")
+ygg.seed() # Creates a seed for yggdrasil
+ygg.create("app_name") # Installs an app for the given name
+ygg.remove("app_name") # Uninstalls an app for the given name
+ygg.show("app_name") # Show information related to the app name provided
 ```
-This will create a virtual environment with dependencies as per *requirements.txt*, and a batch file (under *scripts*)
-to simplify running the app from the command line.
 
-And you're done! You should now be able to open a command line and simply write what's below to run your *spam* app:
+After an application is installed through yggdrasil (and provided the yggdrasil scripts' path was added
+to the *Path* environment variable), you will be able to call the project's entry points
+directly from the command line:
 ```commandline
-spam
+app_name
 ```
-
-##### Others
-- If the app creation doesn't seem to work for some reason, you can also pass *debug=True* to the *create* function to see the full log during app creation
-- Yggdrasil also presents a *remove* and *update* functions, taking the same arguments as *create*
-
 
 Any feedback welcome!
