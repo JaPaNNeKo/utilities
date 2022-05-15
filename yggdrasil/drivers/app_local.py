@@ -26,7 +26,7 @@ class AppLocal(AppGeneric):
         self.venv_name = r'venv_{0}'.format(self.name)
         self.directory = kwargs.pop("directory")
         self.entry_points = kwargs.pop("entry_points")
-        self.version_py = kwargs.pop('py_version')
+        self.version_py = kwargs.pop('py_version', None)
 
     def create(self, path_scripts:str, path_venvs: str, path_templates: str, **kwargs):
         """
@@ -48,7 +48,7 @@ class AppLocal(AppGeneric):
         if not self.is_installed:
             cmds = []
             path_venv = r'{0}\{1}'.format(path_venvs, self.venv_name)
-            if self.version_py == '':
+            if not self.version_py:
                 cmds.append(r'py -m venv {0}'.format(path_venv))
             else:
                 cmds.append(r'py -{0} -m venv {1}'.format(self.version_py, path_venv))
