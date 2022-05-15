@@ -1,5 +1,5 @@
 # Yggdrasil
-##### Concept
+#### Concept
 The yggdrasil library is meant to facilitate the distribution of scripts into production through the definition of apps.
 Conceptually, each app is defined as:
 - Name: Characterises the app to be installed / uninstalled
@@ -10,7 +10,7 @@ Conceptually, each app is defined as:
 Through its API, yggdrasil gives your means to seamlessly switch between several virtual environments while having an 
 easy way to call your home-made scripts from the command line.
 
-##### Getting started
+#### Getting started
 Before using the tool to create apps, yggdrasil needs an initial set up.
 First, install the package:
 ```commandline
@@ -29,7 +29,7 @@ To make each app easily callable from the command line, it's also recommended to
 
 That's it, you're ready to create your first application!
 
-##### Applications requirements
+#### Applications requirements
 The definition of apps is done through the settings.yaml file (under Yggdrasil\settings). The library gives the possibility
 to either install apps that are only stored locally (local apps hereafter) or hosted online in a git repository (web apps
 hereafter).
@@ -39,7 +39,7 @@ To be able to create an application, the core project will also need to define:
 - A requirements.txt file with the project's dependencies, located at the source of the package / project directory
 - For web-based apps, the project will need to define entry points in the setup.py file
 
-##### Yggdrasil commands
+#### Yggdrasil commands
 Yggdrasil can be called either from shell or from python. From shell:
 ```commandline
 yggdrasil seed # Creates a seed for yggdrasil
