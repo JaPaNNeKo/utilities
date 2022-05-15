@@ -1,4 +1,3 @@
-# todo (st) update docstring in whole project
 from yggdrasil.scripts import (
     run,
     seed,

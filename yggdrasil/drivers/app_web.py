@@ -37,7 +37,6 @@ class AppWeb(AppGeneric):
         self.version_py = kwargs.pop('py_version', None)
         self.repo_name = self.url_project.split("/")[-1].split(".")[0]
 
-    # todo (mt) modularise
     def create(self, path_scripts: str, path_venvs: str, path_templates: str, **kwargs):
         """
         Install the application.
