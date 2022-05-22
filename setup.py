@@ -1,12 +1,14 @@
 from setuptools import setup, find_packages
+from pathlib import Path
+long_description = (Path(__file__).parent / "README.md").read_text()
 
 setup(
-  name='yggdrasil',
+  name='ud-yggdrasil',
   packages=find_packages(),
-  version='2.0.0-alpha.7',
+  version='2.0.0-alpha.8',
   description='Apps handler for in-house python scripts',
   author='Umbriel Draken',
-  long_description='README',
+  long_description=long_description,
   long_description_content_type='text/markdown',
   author_email='umbriel.draken@gmail.com',
   url='https://github.com/um-en/yggdrasil',
@@ -22,7 +24,7 @@ setup(
   keywords=['yggdrasil', 'drivers', 'virtual', 'environment'],
   install_requires=[
     'pyyaml',
-    'dist_meta@git+https://github.com/um-en/dist_meta.git@1.0.0'
+    'ud-dist-meta>=1.0.2'
   ],
   entry_points={
     'console_scripts': ['yggdrasil=yggdrasil.scripts:cmd_ygg']

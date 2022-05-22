@@ -12,11 +12,11 @@ easy way to call your home-made scripts from the command line.
 
 #### Getting started
 Before using the tool to create apps, yggdrasil needs an initial set up.
-First, install the package:
+First, install the package (either from PyPI or from Github):
 ```commandline
-pip install git+https://www.github.com/mx-personal/yggdrasil.git
+pip install ud-yggdrasil
+pip install git+https://www.github.com/um-ed/ud-yggdrasil.git
 ```
-*(The package is not currently available on pipy)*
 
 Then, create the base folder structure to install yggdrasil into:
 ```shell script
