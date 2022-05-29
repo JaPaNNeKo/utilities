@@ -81,7 +81,7 @@ class AppWeb(AppGeneric):
                 # Extract distributions meta information
                 cmds = []
                 cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, self.repo_name))
-                cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, "dist_meta"))
+                cmds.append(r"{0}\Scripts\activate && gen_dist_info {1} {0}\ygginfo-{1}.yaml && deactivate".format(path_venv, "ud-dist-meta"))
                 run_cmds(cmds)
                 info_repo = DistInfo.from_yaml(r'{0}\ygginfo-{1}.yaml'.format(path_venv, self.repo_name))
 
