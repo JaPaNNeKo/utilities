@@ -5,7 +5,7 @@ long_description = (Path(__file__).parent / "README.md").read_text()
 setup(
   name='ud-yggdrasil',
   packages=find_packages(),
-  version='2.0.0-alpha.8',
+  version='2.0.0-alpha.9',
   description='Apps handler for in-house python scripts',
   author='Umbriel Draken',
   long_description=long_description,
