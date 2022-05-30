@@ -5,7 +5,7 @@ long_description = (Path(__file__).parent / "README.md").read_text()
 setup(
   name='ud-yggdrasil',
   packages=find_packages(),
-  version='2.0.0-alpha.9',
+  version='2.0.0-alpha.10',
   description='Apps handler for in-house python scripts',
   author='Umbriel Draken',
   long_description=long_description,
@@ -24,7 +24,7 @@ setup(
   keywords=['yggdrasil', 'drivers', 'virtual', 'environment'],
   install_requires=[
     'pyyaml',
-    'ud-dist-meta>=1.0.2'
+    'ud-dist-meta>=1.0.3'
   ],
   entry_points={
     'console_scripts': ['yggdrasil=yggdrasil.scripts:cmd_ygg']
